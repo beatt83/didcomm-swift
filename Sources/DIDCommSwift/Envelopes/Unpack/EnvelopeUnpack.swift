@@ -28,8 +28,8 @@ struct MetadataBuilder {
     var encryptedFrom: String?
     var signFrom: String?
     var fromPriorIssuerKid: String?
-    var encAlgAuth: AuthCryptAlg?
-    var encAlgAnon: AnonCryptAlg?
+    var encAlgAuth: AuthenticatedEncryptionAlg?
+    var encAlgAnon: AnonymousEncryptionAlgorithms?
     var signAlg: SignAlg?
     var signedMessage: [String: Any]?
     var fromPriorJwt: String?
@@ -44,8 +44,8 @@ struct MetadataBuilder {
         encryptedFrom: String? = nil,
         signFrom: String? = nil,
         fromPriorIssuerKid: String? = nil,
-        encAlgAuth: AuthCryptAlg? = nil,
-        encAlgAnon: AnonCryptAlg? = nil,
+        encAlgAuth: AuthenticatedEncryptionAlg? = nil,
+        encAlgAnon: AnonymousEncryptionAlgorithms? = nil,
         signAlg: SignAlg? = nil,
         signedMessage: [String: Any]? = nil,
         fromPriorJwt: String? = nil
@@ -102,7 +102,7 @@ struct EnvelopeUnpack {
         let result = try await unpack(packedMessage: packedMessage, metadata: .init())
         
         guard let messageJson = try JSONSerialization.jsonObject(with: result.message) as? [String: Any] else {
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.malformedMessage(try result.message.tryToString())
         }
         return .init(message: try Message(fromJson: messageJson), metadata: result.metadata.toMetadata())
     }
@@ -116,7 +116,7 @@ struct EnvelopeUnpack {
                 didResolver: didResolver,
                 secretResolver: secretResolver
             ).unpack(metadata: metadata)
-            print(try result.message.tryToString())
+            
             return try await unpack(packedMessage: result.message, metadata: result.metadata)
         case .jws:
             let result = try await SignedEnvelopeUnpack(
@@ -152,7 +152,6 @@ private func isJWE(payload: Data) -> Bool {
 }
 
 private func isJWS(payload: Data) -> Bool {
-    print(try? payload.tryToString())
     typealias DefaultJWSJsonFlattened = JWSJsonFlattened<DefaultJWSHeaderImpl, DefaultJWSHeaderImpl>
     
     if (try? JSONDecoder().decode(DefaultJWSJson.self, from: payload)) != nil {

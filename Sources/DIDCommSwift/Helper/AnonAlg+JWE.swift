@@ -17,24 +17,24 @@
 import Foundation
 import JSONWebAlgorithms
 
-extension AnonCryptAlg {
+extension AnonymousEncryptionAlgorithms {
     var jweReference: (ContentEncryptionAlgorithm, KeyManagementAlgorithm) {
         switch self {
-        case .a256CbcHs512EcdhEsA256kw:
+        case .a256CBCHS512:
             return (ContentEncryptionAlgorithm.a256CBCHS512, KeyManagementAlgorithm.ecdhESA256KW)
-        case .a256GcmEcdhEsA256kw:
+        case .a256GCM:
             return (ContentEncryptionAlgorithm.a256GCM, KeyManagementAlgorithm.ecdhESA256KW)
-        case .xc20pEcdhEsA256kw:
+        case .XC20P:
             fatalError("This is not supported")
         }
     }
     
-    static func fromReference(keyAlg: KeyManagementAlgorithm, encAlg: ContentEncryptionAlgorithm) throws -> AnonCryptAlg {
+    static func fromReference(keyAlg: KeyManagementAlgorithm, encAlg: ContentEncryptionAlgorithm) throws -> AnonymousEncryptionAlgorithms {
         switch (keyAlg, encAlg) {
         case (.ecdhESA256KW, .a256CBCHS512):
-            return .a256CbcHs512EcdhEsA256kw
+            return .a256CBCHS512
         case (.ecdhESA256KW, .a256GCM):
-            return .a256GcmEcdhEsA256kw
+            return .a256GCM
         default:
             throw DIDCommError.unsupportedCryptoAlgorithme(algorithm: keyAlg.rawValue, encoding: encAlg.rawValue)
         }

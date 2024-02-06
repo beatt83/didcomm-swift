@@ -102,9 +102,13 @@ let didDocCharlie = DIDDocument(
         .init(
             id: "did:example:123456789abcdefghi#didcomm-1",
             type: "",
-            serviceEndpoint: .string("did:example:mediator2"),
-            routingKeys: ["did:example:mediator1#key-x25519-1"],
-            accept: [DIDCommProfile.v2.rawValue, DIDCommProfile.aip2_rfc587.rawValue]
+            serviceEndpoint: AnyCodable(
+                arrayLiteral: [
+                    "uri": "did:example:mediator2",
+                    "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
+                    "routing_keys": ["did:example:mediator1#key-x25519-1"]
+                ] as [String: Any]
+            )
         )
     ]
 )

@@ -17,10 +17,18 @@
 import Foundation
 import JSONWebEncryption
 
+/// A structure that facilitates DIDComm messaging by providing methods for packing and unpacking DIDComm messages.
+/// It utilizes `DIDResolver` and `SecretResolver` for resolving DIDs and secrets necessary for message processing.
 public struct DIDComm {
+    /// Resolves DIDs to their corresponding DID Documents.
     public let didResolver: DIDResolver
+    /// Resolves secrets associated with DIDs, necessary for encryption and signing.
     public let secretResolver: SecretResolver
     
+    /// Initializes a new DIDComm instance with specified resolvers.
+    /// - Parameters:
+    ///   - didResolver: A `DIDResolver` instance for resolving DIDs.
+    ///   - secretResolver: A `SecretResolver` instance for resolving secrets.
     public init(didResolver: DIDResolver, secretResolver: SecretResolver) {
         self.didResolver = didResolver
         self.secretResolver = secretResolver
@@ -40,28 +48,20 @@ public struct DIDComm {
     /// Depending on ambient security, plaintext may or may not be an appropriate format for DIDComm data at rest.
     ///
     /// - Parameters:
-    ///   - params: Pack Plaintext Parameters.
-    /// - Throws: DIDCommException if pack cannot be done, in particular:
-    ///   - DIDDocException if a DID or DID URL (for example a key ID) cannot be resolved to a DID Doc.
-    ///   - SecretNotFoundException if there is no secret for the given DID or DID URL (key ID)
-    ///   - DIDCommIllegalArgumentException if invalid input is provided.
-    ///
-    /// - Returns: Result of Pack Plaintext Operation.
+    ///   - params: Parameters for packing the plaintext message, including the message itself and optional resolvers.
+    /// - Throws: Various exceptions if the message cannot be packed, including resolution and input validation errors.
+    /// - Returns: A `PlainTextResult` containing the packed message.
     public func packPlainText(params: PlainTextParams) async throws -> PlainTextResult {
         let didResolver = params.didResolver ?? self.didResolver
         let secretResolver = params.secretResolver ?? self.secretResolver
         
-        let result = try await PlainEnvelopePack(
+        return try await PlainEnvelopePack(
             message: params.message,
-            fromPriorIssuerKid: params.fromPriorIssuerKid,
+            fromPriorIssuerKid: params.fromPriorIssuerKid, 
+            routingEnabled: params.routingEnabled,
             didResolver: didResolver,
             secretResolver: secretResolver
         ).pack()
-        
-        return PlainTextResult(
-            packedMessage: result.packedMessage,
-            fromPriorIssuerKid: result.fromPriorIssuerKid
-        )
     }
 
     /// Produces [DIDComm Signed Message](https://identity.foundation/didcomm-messaging/spec/#didcomm-signed-message).
@@ -76,13 +76,9 @@ public struct DIDComm {
     /// relinquishes the sender’s ability to speak off the record.
     ///
     /// - Parameters:
-    ///   - params: Pack Signed Parameters.
-    /// - Throws: DIDCommException if pack cannot be done, in particular:
-    ///   - DIDDocException if a DID or DID URL (for example a key ID) cannot be resolved to a DID Doc.
-    ///   - SecretNotFoundException if there is no secret for the given DID or DID URL (key ID)
-    ///   - DIDCommIllegalArgumentException if invalid input is provided.
-    ///
-    /// - Returns: Result of Pack Signed Operation.
+    ///   - params: Parameters for packing the signed message, including the message, signer information, and optional resolvers.
+    /// - Throws: Various exceptions if the message cannot be packed, including resolution and input validation errors.
+    /// - Returns: A `SignedResult` containing the signed message.
     public func packSigned(params: SignedParams) async throws -> SignedResult {
         let didResolver = params.didResolver ?? self.didResolver
         let secretResolver = params.secretResolver ?? self.secretResolver
@@ -91,6 +87,7 @@ public struct DIDComm {
             message: params.message,
             signFrom: params.signFrom,
             fromPriorIssuerKid: params.fromPriorIssuerKid,
+            routingEnabled: params.routingEnabled,
             didResolver: didResolver,
             secretResolver: secretResolver
         ).pack()
@@ -113,14 +110,9 @@ public struct DIDComm {
     /// It is important in privacy-preserving routing.
     ///
     /// - Parameters:
-    ///   - params: Pack Encrypted Parameters.
-    /// - Throws: DIDCommException if pack cannot be done, in particular:
-    ///   - DIDDocException if a DID or DID URL (for example a key ID) cannot be resolved to a DID Doc.
-    ///   - SecretNotFoundException if there is no secret for the given DID or DID URL (key ID)
-    ///   - DIDCommIllegalArgumentException if invalid input is provided.
-    ///   - IncompatibleCryptoException if the sender and target crypto is not compatible (for example, there are no compatible keys for key agreement)
-    ///
-    /// - Returns: Result of pack encrypted operation.
+    ///   - params: Parameters for the encryption process, including message, recipient, and algorithm details.
+    /// - Throws: Exceptions if encryption cannot be completed, including resolution, compatibility, and input validation errors.
+    /// - Returns: An `EncryptedResult` containing the encrypted message.
     public func packEncrypted(params: EncryptedParams) async throws -> EncryptedResult {
         let didResolver = params.didResolver ?? self.didResolver
         let secretResolver = params.secretResolver ?? self.secretResolver
@@ -134,6 +126,7 @@ public struct DIDComm {
                 algorithm: alg, 
                 protectedSender: params.encAlgAnon,
                 fromPriorIssuerKid: params.fromPriorIssuerKid,
+                routingEnabled: params.routingEnabled,
                 signFrom: params.signFrom,
                 didResolver: didResolver,
                 secretResolver: secretResolver
@@ -144,12 +137,13 @@ public struct DIDComm {
                 to: params.to,
                 algorithm: alg,
                 fromPriorIssuerKid: params.fromPriorIssuerKid,
+                routingEnabled: params.routingEnabled,
                 signFrom: params.signFrom,
                 didResolver: didResolver,
                 secretResolver: secretResolver
             ).pack()
         } else {
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unsupportedParams(required: ["encAlgAnon", "encAlgAuth", "from"])
         }
 
         return EncryptedResult(
@@ -158,20 +152,16 @@ public struct DIDComm {
             fromKid: result.fromKid,
             signFromKid: result.signFromKid,
             fromPriorIssuerKid: result.fromPriorIssuerKid,
-            serviceMetadata: nil
+            routingResult: result.routingResult
         )
     }
 
     /// Unpacks the packed DIDComm message by doing decryption and verifying the signatures.
     ///
     /// - Parameters:
-    ///   - params: Unpack Parameters.
-    /// - Throws: DIDCommException if unpack cannot be done, in particular:
-    ///   - MalformedMessageException if the message is invalid (cannot be decrypted, signature is invalid, the plaintext is invalid, etc.)
-    ///   - DIDDocException if a DID or DID URL (for example a key ID) cannot be resolved to a DID Doc.
-    ///   - SecretNotFoundException if there is no secret for the given DID or DID URL (key ID)
-    ///
-    /// - Returns: Result of Unpack Operation.
+    ///   - params: Parameters for the unpacking process, including the packed message and optional resolvers.
+    /// - Throws: Exceptions if the message cannot be unpacked, including decryption and signature verification errors.
+    /// - Returns: An `UnpackResult` with the unpacked message and metadata.
     public func unpack(params: UnpackParams) async throws -> UnpackResult {
         let didResolver = params.didResolver ?? self.didResolver
         let secretResolver = params.secretResolver ?? self.secretResolver
@@ -183,7 +173,4 @@ public struct DIDComm {
             secretResolver: secretResolver
         ).unpack()
     }
-
-    // NOTE: There might be more functions or implementations to convert but they were not provided in the original request. The above translations are based on the provided Kotlin code.
-
 }

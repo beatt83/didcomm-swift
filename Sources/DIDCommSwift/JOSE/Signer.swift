@@ -45,23 +45,32 @@ private func getJWSAlgorithm(jwk: JSONWebKey.JWK) throws -> JSONWebAlgorithms.Si
         switch jwk.curve {
         case .p256:
             return .ES256
+        case .p384:
+            return .ES384
+        case .p521:
+            return .ES512
         case .secp256k1:
             return .ES256K
         default:
-            // TODO: Switch by error that curve is unsupported
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unexpectedCurve(
+                id: jwk.keyID,
+                curve: jwk.curve?.rawValue,
+                expected: ["p256", "p384", "p512", "secp256k1", "ed25519"]
+            )
         }
     case .octetKeyPair:
         switch jwk.curve {
         case .ed25519:
             return .EdDSA
         default:
-            // TODO: Switch by error that curve is unsupported
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unexpectedCurve(
+                id: jwk.keyID,
+                curve: jwk.curve?.rawValue,
+                expected: ["p256", "p384", "p512", "secp256k1", "ed25519"]
+            )
         }
     default:
-        // TODO: Switch by error that kty is unsupported
-        throw DIDCommError.somethingWentWrong
+        throw DIDCommError.unsupportedKey(jwk.keyType.rawValue, supported: ["okp", "EC"])
     }
 }
 
@@ -73,17 +82,32 @@ private func getJWSKeyData(jwk: JSONWebKey.JWK) throws -> Data {
             guard
                 let privateKeyB64 = jwk.d,
                 let privateKeyData = Data(base64URLEncoded: privateKeyB64)
-            else { throw DIDCommError.somethingWentWrong }
+            else { throw DIDCommError.invalidBase64URLKey }
+            return privateKeyData
+        case .p384:
+            guard
+                let privateKeyB64 = jwk.d,
+                let privateKeyData = Data(base64URLEncoded: privateKeyB64)
+            else { throw DIDCommError.invalidBase64URLKey }
+            return privateKeyData
+        case .p521:
+            guard
+                let privateKeyB64 = jwk.d,
+                let privateKeyData = Data(base64URLEncoded: privateKeyB64)
+            else { throw DIDCommError.invalidBase64URLKey }
             return privateKeyData
         case .secp256k1:
             guard
                 let privateKeyB64 = jwk.d,
                 let privateKeyData = Data(base64URLEncoded: privateKeyB64)
-            else { throw DIDCommError.somethingWentWrong }
+            else { throw DIDCommError.invalidBase64URLKey }
             return privateKeyData
         default:
-            // TODO: Switch by error that curve is unsupported
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unexpectedCurve(
+                id: jwk.keyID,
+                curve: jwk.curve?.rawValue,
+                expected: ["p256", "p384", "p512", "secp256k1", "ed25519"]
+            )
         }
     case .octetKeyPair:
         switch jwk.curve {
@@ -91,14 +115,16 @@ private func getJWSKeyData(jwk: JSONWebKey.JWK) throws -> Data {
             guard
                 let privateKeyB64 = jwk.d,
                 let privateKeyData = Data(base64URLEncoded: privateKeyB64)
-            else { throw DIDCommError.somethingWentWrong }
+            else { throw DIDCommError.invalidBase64URLKey }
             return privateKeyData
         default:
-            // TODO: Switch by error that curve is unsupported
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unexpectedCurve(
+                id: jwk.keyID,
+                curve: jwk.curve?.rawValue,
+                expected: ["p256", "p384", "p512", "secp256k1", "ed25519"]
+            )
         }
     default:
-        // TODO: Switch by error that kty is unsupported
-        throw DIDCommError.somethingWentWrong
+        throw DIDCommError.unsupportedKey(jwk.keyType.rawValue, supported: ["okp", "EC"])
     }
 }

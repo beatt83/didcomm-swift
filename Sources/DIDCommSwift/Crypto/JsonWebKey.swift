@@ -31,7 +31,6 @@ struct JsonWebKey: Key {
     
     init(id: String, materialValue: Data) throws {
         self.id = id
-        print(try materialValue.tryToString())
         var jwk = try JSONDecoder().decode(JSONWebKey.JWK.self, from: materialValue)
         jwk.keyID = id
         self.jwk = jwk

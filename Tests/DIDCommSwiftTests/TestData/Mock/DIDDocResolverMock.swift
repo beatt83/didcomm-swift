@@ -23,7 +23,7 @@ struct DIDDoccumentResolverInMemory: DIDResolver {
     
     func resolve(did: DID) throws -> DIDDocument {
         guard let document = docs.first(where: { $0.id == did.description }) else {
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.unableToResolveDID(did.description)
         }
         return document
     }
@@ -35,7 +35,7 @@ struct DIDDocumentResolverMock {
             didDocAliceSpecTestVectors,
             didDocBobTestVectors,
             didDocCharlie,
-            didDocEllie
+            didDocEllie,
         ])
     }
     
@@ -45,6 +45,16 @@ struct DIDDocumentResolverMock {
             didDocBobWithNoSecrets,
             didDocCharlie,
             didDocEllie
+        ])
+    }
+    
+    static func mockRouting() -> DIDDoccumentResolverInMemory {
+        .init(docs: [
+            didDocAliceSpecRoutingTestVectors,
+            didDocBobSpecRoutingTestVectors,
+            didDocBobSpecRoutingMediator1TestVectors,
+            didDocBobSpecRoutingMediator2TestVectors,
+            didDocBobSpecRoutingMediator3TestVectors
         ])
     }
 }

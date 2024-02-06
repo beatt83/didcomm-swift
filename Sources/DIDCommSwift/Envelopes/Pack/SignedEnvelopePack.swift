@@ -22,6 +22,7 @@ struct SignedEnvelopePack {
     let message: Message
     let signFrom: String
     let fromPriorIssuerKid: String?
+    let routingEnabled: Bool
     let didResolver: DIDResolver
     let secretResolver: SecretResolver
     
@@ -37,20 +38,34 @@ struct SignedEnvelopePack {
         let signFromKey = try await senderKeySelector.findSigningKey(signFrom: signFrom)
         let msgJsonData = try message.didcommJson()
         
-        return try pack(
+        return try await pack(
             payload: msgJsonData,
             key: signFromKey,
             fromPriorIssuerKid: fromPriorIssuerKid
         )
     }
     
-    func pack(payload: Data, key: Key, fromPriorIssuerKid: String?) throws -> SignedResult {
-        let msg = try Signer.sign(payload: payload, key: key)
+    func pack(payload: Data, key: Key, fromPriorIssuerKid: String?) async throws -> SignedResult {
+        let messageJson = try Signer.sign(payload: payload, key: key)
+        
+        let routingResult: RoutingResult?
+        if routingEnabled, let to = message.to {
+            routingResult = try await Routing(
+                didResolver: didResolver,
+                secretResolver: secretResolver
+            ).packRouting(
+                to: to,
+                packedMessage: messageJson
+            )
+        } else {
+            routingResult = nil
+        }
 
         return SignedResult(
-            packedMessage: msg,
+            packedMessage: messageJson,
             signFromKid: key.id,
-            fromPriorIssuerKid: fromPriorIssuerKid
+            fromPriorIssuerKid: fromPriorIssuerKid,
+            routingResult: routingResult
         )
     }
 }

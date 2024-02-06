@@ -19,8 +19,8 @@ let package = Package(
             targets: ["DIDCommSwift"]),
     ],
     dependencies: [
-        .package(path: "../didcore-swift"),
-        .package(path: "../jose-swift")
+        .package(url: "https://github.com/beatt83/didcore-swift.git", .upToNextMinor(from: "1.1.0")),
+        .package(url: "https://github.com/beatt83/jose-swift.git", .upToNextMinor(from: "1.2.1"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

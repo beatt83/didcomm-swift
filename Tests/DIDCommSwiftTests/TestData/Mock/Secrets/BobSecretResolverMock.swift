@@ -124,8 +124,7 @@ class BobSecretResolverMock: SecretResolver {
                    "y":"AEJipR0Dc-aBZYDqN51SKHYSWs9hM58SmRY1MxgXANgZrPaq1EeGMGOjkbLMEJtBThdjXhkS5VlXMkF0cYhZELiH"
                 }
                 """.data(using: .utf8)!
-            )
-        )
+            ))
     ]
     
     lazy var secretResolver = SecretResolverInMemory(secrets: secrets)

@@ -72,7 +72,7 @@ private func extractFromPriorKid(fromPriorJwt: String) throws -> String? {
     guard
         segments.count == 3,
         let jsonData = Data(base64URLEncoded: String(segments[0]))
-    else { throw DIDCommError.somethingWentWrong }
+    else { throw DIDCommError.malformedMessage(fromPriorJwt) }
     let jwsHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: jsonData)
     return jwsHeader.keyID
 }

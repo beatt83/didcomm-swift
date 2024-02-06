@@ -28,9 +28,9 @@ final class PackEncryptedMessageTests: XCTestCase {
         let message = Message.encryptedTextMessage
         let packed = try await didcomm.packEncrypted(params: .init(
             message: message,
-            to: charlieDID,
+            to: [charlieDID],
             from: aliceDID,
-            encAlgAuth: .a256CbcHs512Ecdh1puA256kw
+            encAlgAnon: .a256CBCHS512
         ))
         
         let didcommUnpack = DIDComm(
@@ -43,8 +43,6 @@ final class PackEncryptedMessageTests: XCTestCase {
         )
         
         XCTAssertEqual(message, unpacked.message)
-        print(packed.packedMessage)
-        print()
     }
     
     func testUnpackEncryptedMessage() async throws {
@@ -58,8 +56,6 @@ final class PackEncryptedMessageTests: XCTestCase {
         )
         
         let unpack = try await didcomm.unpack(params: .init(packedMessage: message))
-        
-        print(unpack.message)
     }
     
     func testEncryptedMessageTestVectors() async throws {

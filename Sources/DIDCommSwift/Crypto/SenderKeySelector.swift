@@ -46,6 +46,15 @@ struct SenderKeySelector {
             return try KeyHelper.fromSecret(key)
         }
     }
+    
+    func findAuthCryptKeys(from: String, to: [String]) async throws -> (Key, [Key]) {
+        let keys = try await to
+            .asyncMap { try await findAuthCryptKeys(from: from, to: $0) }
+        guard let fromKey = keys.first?.0 else {
+            throw DIDCommError.secretNotFound(from)
+        }
+        return (fromKey, keys.flatMap(\.1))
+    }
 
     func findAuthCryptKeys(from: String, to: String) async throws -> (Key, [Key]) {
         guard let didFrom = DIDUrl(from: from) else {
@@ -86,6 +95,10 @@ struct SenderKeySelector {
             
             throw DIDCommError.unsupportedKey("", supported: ["X25519", "Ed25519"])
         }
+    }
+    
+    func findAnonCryptKeys(to: [String]) async throws -> [Key] {
+        try await to.asyncMap { try await findAnonCryptKeys(to: $0) }.flatMap { $0 }
     }
 
     func findAnonCryptKeys(to: String) async throws -> [Key] {

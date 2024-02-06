@@ -16,9 +16,35 @@
 
 import Foundation
 
-/// Result of pack signed message operation.
+/// Represents the result of signing a DIDComm message.
+///
+/// This structure contains the signed message along with metadata about the signing process,
+/// including the identifier of the signing key, optional information about the issuer of a `fromPrior`
+/// claim, and routing results if the message was processed for delivery through mediators.
 public struct SignedResult {
+    /// The signed message packaged as a string. This message includes the signature, providing
+    /// non-repudiation and integrity verification but not confidentiality, as it is not encrypted.
     public let packedMessage: String
+    /// The identifier (Key ID, or `kid`) of the key used to sign the message. This can be used
+    /// to verify the signature against the signer's public key.
     public let signFromKid: String
+    /// An optional identifier for the issuer of a `fromPrior` claim, if such a claim was included
+    /// in the message. This is relevant for asserting identity continuity or permissions across messages.
     public let fromPriorIssuerKid: String?
+    /// Optional routing results, detailing how the message has been processed for routing through
+    /// mediators to reach its final destination. This is important for understanding the path
+    /// a message takes through a network of mediators.
+    public let routingResult: RoutingResult?
+    
+    init(
+        packedMessage: String,
+        signFromKid: String,
+        fromPriorIssuerKid: String? = nil,
+        routingResult: RoutingResult? = nil
+    ) {
+        self.packedMessage = packedMessage
+        self.signFromKid = signFromKid
+        self.fromPriorIssuerKid = fromPriorIssuerKid
+        self.routingResult = routingResult
+    }
 }

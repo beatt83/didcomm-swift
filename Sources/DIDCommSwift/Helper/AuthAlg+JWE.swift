@@ -17,18 +17,18 @@
 import Foundation
 import JSONWebAlgorithms
 
-extension AuthCryptAlg {
+extension AuthenticatedEncryptionAlg {
     var jweReference: (ContentEncryptionAlgorithm, KeyManagementAlgorithm) {
         switch self {
-        case .a256CbcHs512Ecdh1puA256kw:
+        case .a256CBCHS512:
             return (.a256CBCHS512, .ecdh1PUA256KW)
         }
     }
     
-    static func fromReference(keyAlg: KeyManagementAlgorithm, encAlg: ContentEncryptionAlgorithm) throws -> AuthCryptAlg {
+    static func fromReference(keyAlg: KeyManagementAlgorithm, encAlg: ContentEncryptionAlgorithm) throws -> AuthenticatedEncryptionAlg {
         switch (keyAlg, encAlg) {
         case (.ecdh1PUA256KW, .a256CBCHS512):
-            return .a256CbcHs512Ecdh1puA256kw
+            return .a256CBCHS512
         default:
             throw DIDCommError.unsupportedCryptoAlgorithme(algorithm: keyAlg.rawValue, encoding: encAlg.rawValue)
         }

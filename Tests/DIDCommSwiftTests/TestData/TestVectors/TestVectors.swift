@@ -53,7 +53,7 @@ let encryptionTestVectors = [
                 "did:example:bob#key-p384-1",
                 "did:example:bob#key-p384-2"
             ],
-            encAlgAnon: .a256CbcHs512EcdhEsA256kw
+            encAlgAnon: .a256CBCHS512
         )
     ),
     TestVector(
@@ -86,7 +86,7 @@ let encryptionTestVectors = [
                 "did:example:bob#key-p521-1",
                 "did:example:bob#key-p521-2"
             ],
-            encAlgAnon: .a256GcmEcdhEsA256kw
+            encAlgAnon: .a256GCM
         )
     ),
     TestVector(
@@ -127,7 +127,7 @@ let encryptionTestVectors = [
                 "did:example:bob#key-x25519-3"
             ],
             encryptedFrom: "did:example:alice#key-x25519-1",
-            encAlgAuth: .a256CbcHs512Ecdh1puA256kw
+            encAlgAuth: .a256CBCHS512
         )
     ),
     TestVector(
@@ -163,7 +163,7 @@ let encryptionTestVectors = [
             ],
             encryptedFrom: "did:example:alice#key-p256-1",
             signFrom: "did:example:alice#key-1",
-            encAlgAuth: .a256CbcHs512Ecdh1puA256kw,
+            encAlgAuth: .a256CBCHS512,
             signAlg: .ed25519
         )
     )

@@ -1,0 +1,27 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+
+    runs-on: macos-13
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: xcodebuild build test -scheme "didcomm-swift" -destination "platform=macOS" -resultBundlePath TestResults
+
+    - name: Publish tests results
+      uses: kishikawakatsumi/xcresulttool@v1.7.1
+      with:
+        path: TestResults.xcresult
+        show-code-coverage: true
+      if: success() || failure()
+

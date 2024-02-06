@@ -21,10 +21,11 @@ import JSONWebKey
 struct AuthEnvelopePack {
     let message: Message
     let from: String
-    let to: String
-    let algorithm: AuthCryptAlg
-    let protectedSender: AnonCryptAlg?
+    let to: [String]
+    let algorithm: AuthenticatedEncryptionAlg
+    let protectedSender: AnonymousEncryptionAlgorithms?
     let fromPriorIssuerKid: String?
+    let routingEnabled: Bool
     let signFrom: String?
     
     let didResolver: DIDResolver
@@ -58,16 +59,33 @@ struct AuthEnvelopePack {
             encAlg: jweEnc
         )
         
-        return try .init(
-            packedMessage: protectSenderIfNeeded(
-                message: encryptedMessage,
-                recipientKeys: recipientKeys
-            ).tryToString(),
+        let protectedIfNedded = try protectSenderIfNeeded(
+            message: encryptedMessage,
+            recipientKeys: recipientKeys
+        )
+        
+        let messageJson = try protectedIfNedded.tryToString()
+        
+        let routingResult: RoutingResult?
+        if routingEnabled {
+            routingResult = try await Routing(
+                didResolver: didResolver,
+                secretResolver: secretResolver
+            ).packRouting(
+                to: to,
+                packedMessage: messageJson
+            )
+        } else {
+            routingResult = nil
+        }
+        
+        return .init(
+            packedMessage: messageJson,
             toKids: recipientKeys.map(\.id),
             fromKid: fromKey.id,
             signFromKid: signFromKid,
             fromPriorIssuerKid: fromPriorIssuerKid,
-            serviceMetadata: nil
+            routingResult: routingResult
         )
     }
     
