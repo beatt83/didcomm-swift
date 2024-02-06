@@ -19,6 +19,7 @@ import Foundation
 struct PlainEnvelopePack {
     let message: Message
     let fromPriorIssuerKid: String?
+    let routingEnabled: Bool
     let didResolver: DIDResolver
     let secretResolver: SecretResolver
     
@@ -31,10 +32,26 @@ struct PlainEnvelopePack {
             keySelector: senderKeySelector
         )
         
-        let messageJson = try message.didcommJson()
-        return try PlainTextResult(
-            packedMessage: messageJson.tryToString(),
-            fromPriorIssuerKid: fromPriorIssuerKid
+        let messageJson = try message.didcommJson().tryToString()
+        
+        let routingResult: RoutingResult?
+        
+        if routingEnabled, let to = message.to {
+            routingResult = try await Routing(
+                didResolver: didResolver,
+                secretResolver: secretResolver
+            ).packRouting(
+                to: to,
+                packedMessage: messageJson
+            )
+        } else {
+            routingResult = nil
+        }
+        
+        return PlainTextResult(
+            packedMessage: messageJson,
+            fromPriorIssuerKid: fromPriorIssuerKid,
+            routingResults: routingResult
         )
     }
 }

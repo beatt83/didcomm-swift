@@ -28,8 +28,9 @@ struct PlainEnvelopeUnpack {
             secretResolver: secretResolver
         )
         guard let messageJson = try JSONSerialization.jsonObject(with: packedMessage) as? [String: Any] else {
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.malformedMessage(try packedMessage.tryToString())
         }
+        
         let (message, fromPriorIssuerKid) = try await FromPrior.unpackFromPrior(
             message: try Message(fromJson: messageJson),
             keySelector: keySelector

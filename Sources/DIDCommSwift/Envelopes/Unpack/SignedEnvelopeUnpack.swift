@@ -51,6 +51,10 @@ struct SignedEnvelopeUnpack {
                     metadata.signAlg = .es256
                 case .ES256K:
                     metadata.signAlg = .es256k
+                case .ES384:
+                    metadata.signAlg = .es384
+                case .ES512:
+                    metadata.signAlg = .es512
                 case .EdDSA:
                     metadata.signAlg = .ed25519
                 default:
@@ -64,7 +68,7 @@ struct SignedEnvelopeUnpack {
         }
         
         guard let messageJsonObj = try JSONSerialization.jsonObject(with: jwsJson.payload) as? [String: Any] else {
-            throw DIDCommError.somethingWentWrong
+            throw DIDCommError.malformedMessage(try jwsJson.payload.tryToString())
         }
         
         metadata.authenticated = true

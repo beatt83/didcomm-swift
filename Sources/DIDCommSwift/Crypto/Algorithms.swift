@@ -16,59 +16,54 @@
 
 import Foundation
 
-public enum CryptAlg {
-    case authCryptAlg(AuthCryptAlg)
-    case anonCryptAlg(AnonCryptAlg)
+/// Enumerates the algorithms available for anonymous encryption within the DIDCommV2 framework.
+///
+/// These algorithms are used for encrypting messages without revealing the sender's identity to the recipient.
+///
+/// - Note: The XC20P algorithm is listed for completeness but is currently not supported.
+public enum AnonymousEncryptionAlgorithms: String {
+    /// AES encryption using CBC mode and HMAC SHA-512 for integrity, with a 256-bit key.
+    case a256CBCHS512 = "A256CBC-HS512"
     
-    var authCrypt: AuthCryptAlg? {
-        switch self {
-        case .authCryptAlg(let value):
-            return value
-        default:
-            return nil
-        }
-    }
+    /// AES encryption with Galois/Counter Mode (GCM) using a 256-bit key.
+    case a256GCM = "A256GCM"
     
-    var anonCrypt: AnonCryptAlg? {
-        switch self {
-        case .anonCryptAlg(let value):
-            return value
-        default:
-            return nil
-        }
-    }
+    /// XChaCha20-Poly1305, a combination of the XChaCha20 stream cipher and the Poly1305 MAC.
+    /// Currently not supported in this implementation.
+    case XC20P = "XC20P"
 }
 
-/// Algorithms for anonymous encryption.
-public enum AnonCryptAlg: String {
-    /// a256CbcHs512EcdhEsA256kw: AES256-CBC + HMAC-SHA512 with a 512 bit key content encryption,
-    /// ECDH-ES key agreement with A256KW key wrapping
-    case a256CbcHs512EcdhEsA256kw
-
-    /// xc20pEcdhEsA256kw: XChaCha20Poly1305 with a 256 bit key content encryption,
-    /// ECDH-ES key agreement with A256KW key wrapping
-    case xc20pEcdhEsA256kw
-
-    /// a256GcmEcdhEsA256kw: AES256-GCM with a 256 bit key content encryption,
-    /// ECDH-ES key agreement with A256KW key wrapping
-    case a256GcmEcdhEsA256kw
+/// Enumerates the algorithms available for authenticated encryption within the DIDCommV2 framework.
+///
+/// Authenticated encryption provides confidentiality, integrity, and authenticity assurances on the encrypted data.
+public enum AuthenticatedEncryptionAlg: String {
+    /// AES encryption using CBC mode and HMAC SHA-512 for integrity, with a 256-bit key.
+    /// This algorithm ensures that the data is encrypted and the sender is authenticated to the recipient.
+    case a256CBCHS512 = "A256CBC-HS512"
 }
 
-/// Algorithms for authentication encryption.
-public enum AuthCryptAlg: String {
-    /// a256CbcHs512Ecdh1puA256kw: AES256-CBC + HMAC-SHA512 with a 512 bit key content encryption,
-    /// ECDH-1PU key agreement with A256KW key wrapping
-    case a256CbcHs512Ecdh1puA256kw
-}
-
-/// Algorithms for signature (non-repudiation)
+/// Enumerates the algorithms available for digital signatures within the DIDCommV2 framework.
+///
+/// These algorithms are critical for providing non-repudiation, allowing the sender of a message
+/// to be authenticated via a digital signature verified by the recipient, ensuring the authenticity and integrity of the sender.
 public enum SignAlg {
-    /// elliptic curve digital signature with edwards curves Ed25519 and SHA-512
+    /// Elliptic Curve Digital Signature Algorithm using Edwards curves Ed25519 and SHA-512 for hashing.
+    /// Known for its high security and efficiency, Ed25519 is suitable for high-security applications requiring efficient verification.
     case ed25519
 
-    /// elliptic curve digital signature with NIST p-256 curve and SHA-256
+    /// Elliptic Curve Digital Signature Algorithm with NIST P-256 curve and SHA-256 for hashing.
+    /// ES256 offers a balance of security and performance, widely adopted across various industries for digital signatures.
     case es256
+    
+    /// Elliptic Curve Digital Signature Algorithm with NIST P-384 curve and SHA-384 for hashing.
+    /// ES384 provides enhanced security over ES256, making it suitable for applications requiring higher security assurances.
+    case es384
+    
+    /// Elliptic Curve Digital Signature Algorithm with NIST P-521 curve and SHA-512 for hashing.
+    /// ES512 offers the highest level of security among the ECDSA options in this enum, recommended for maximum security requirements.
+    case es512
 
-    /// elliptic curve digital signature with Secp256k1 keys
+    /// Elliptic Curve Digital Signature Algorithm with Secp256k1 keys.
+    /// ES256K is predominantly used in blockchain applications, offering robust security features tailored for digital transactions.
     case es256k
 }

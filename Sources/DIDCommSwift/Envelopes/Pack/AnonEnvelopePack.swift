@@ -20,9 +20,10 @@ import JSONWebKey
 
 struct AnonEnvelopePack {
     let message: Message
-    let to: String
-    let algorithm: AnonCryptAlg
+    let to: [String]
+    let algorithm: AnonymousEncryptionAlgorithms
     let fromPriorIssuerKid: String?
+    let routingEnabled: Bool
     let signFrom: String?
     let didResolver: DIDResolver
     let secretResolver: SecretResolver
@@ -55,13 +56,28 @@ struct AnonEnvelopePack {
             encAlg: jweEnc
         )
         
-        return try .init(
-            packedMessage: result.tryToString(),
+        let messageJson = try result.tryToString()
+        
+        let routingResult: RoutingResult?
+        if routingEnabled {
+            routingResult = try await Routing(
+                didResolver: didResolver,
+                secretResolver: secretResolver
+            ).packRouting(
+                to: to,
+                packedMessage: messageJson
+            )
+        } else {
+            routingResult = nil
+        }
+        
+        return .init(
+            packedMessage: messageJson,
             toKids: recipientKeys.map(\.id),
             fromKid: nil,
             signFromKid: signFromKid,
             fromPriorIssuerKid: fromPriorIssuerKid,
-            serviceMetadata: nil
+            routingResult: routingResult
         )
     }
     

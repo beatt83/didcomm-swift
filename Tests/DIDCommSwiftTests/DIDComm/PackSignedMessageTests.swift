@@ -30,8 +30,6 @@ final class PackSignedMessageTests: XCTestCase {
             signFrom: "did:example:alice#key-3"
         ))
         
-        print(packed.packedMessage)
-        
         let unpack = try await didcomm.unpack(params: .init(packedMessage: packed.packedMessage))
         
         XCTAssertEqual(Message.plainTextMessage, unpack.message)
@@ -42,27 +40,17 @@ final class PackSignedMessageTests: XCTestCase {
         {"id":"1234567890","typ":"application/didcomm-plain+json","type":"http://example.com/protocols/lets_do_lunch/1.0/proposal","from":"did:example:alice","to":["did:example:bob"],"created_time":1516269022,"expires_time":1516385931,"body":{"messagespecificattribute":"and its value"}}
         """.data(using: .utf8)!
         
-        let signedMessage = SignedMessage(
-            payload: "eyJpZCI6IjEyMzQ1Njc4OTAiLCJ0eXAiOiJhcHBsaWNhdGlvbi9kaWRjb21tLXBsYWluK2pzb24iLCJ0eXBlIjoiaHR0cDovL2V4YW1wbGUuY29tL3Byb3RvY29scy9sZXRzX2RvX2x1bmNoLzEuMC9wcm9wb3NhbCIsImZyb20iOiJkaWQ6ZXhhbXBsZTphbGljZSIsInRvIjpbImRpZDpleGFtcGxlOmJvYiJdLCJjcmVhdGVkX3RpbWUiOjE1MTYyNjkwMjIsImV4cGlyZXNfdGltZSI6MTUxNjM4NTkzMSwiYm9keSI6eyJtZXNzYWdlc3BlY2lmaWNhdHRyaWJ1dGUiOiJhbmQgaXRzIHZhbHVlIn19",
-            signatures: [
-                .init(
-                    protected: "eyJ0eXAiOiJhcHBsaWNhdGlvbi9kaWRjb21tLXNpZ25lZCtqc29uIiwiYWxnIjoiRWREU0EifQ",
-                    signature: "FW33NnvOHV0Ted9-F7GZbkia-vYAfBKtH4oBxbrttWAhBZ6UFJMxcGjL3lwOl4YohI3kyyd08LHPWNMgP2EVCQ",
-                    header: [
-                        "kid":"did:example:alice#key-1"
-                    ]
-                )
-            ]
-        )
+        let signedMessage = """
+        {"payload":"eyJpZCI6IjEyMzQ1Njc4OTAiLCJ0eXAiOiJhcHBsaWNhdGlvbi9kaWRjb21tLXBsYWluK2pzb24iLCJ0eXBlIjoiaHR0cDovL2V4YW1wbGUuY29tL3Byb3RvY29scy9sZXRzX2RvX2x1bmNoLzEuMC9wcm9wb3NhbCIsImZyb20iOiJkaWQ6ZXhhbXBsZTphbGljZSIsInRvIjpbImRpZDpleGFtcGxlOmJvYiJdLCJjcmVhdGVkX3RpbWUiOjE1MTYyNjkwMjIsImV4cGlyZXNfdGltZSI6MTUxNjM4NTkzMSwiYm9keSI6eyJtZXNzYWdlc3BlY2lmaWNhdHRyaWJ1dGUiOiJhbmQgaXRzIHZhbHVlIn19","signatures":[{"protected":"eyJ0eXAiOiJhcHBsaWNhdGlvbi9kaWRjb21tLXNpZ25lZCtqc29uIiwiYWxnIjoiRWREU0EifQ","signature":"FW33NnvOHV0Ted9-F7GZbkia-vYAfBKtH4oBxbrttWAhBZ6UFJMxcGjL3lwOl4YohI3kyyd08LHPWNMgP2EVCQ","header":{"kid":"did:example:alice#key-1"}}]}
+        """.replacingWhiteSpacesAndNewLines()
         
         let didcomm = DIDComm(
             didResolver: DIDDocumentResolverMock.mock(),
             secretResolver: AliceSecretResolverMock()
         )
         
-        let signedString = String(data: try JSONEncoder().encode(signedMessage), encoding: .utf8)!
         
-        let unpack = try await didcomm.unpack(params: .init(packedMessage: signedString))
+        let unpack = try await didcomm.unpack(params: .init(packedMessage: signedMessage))
         
         let jsonObj = try JSONSerialization.jsonObject(with: expectedMessage) as! [String: Any]
         

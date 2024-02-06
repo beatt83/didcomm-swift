@@ -24,7 +24,7 @@ extension Secret {
         self.type = .authentication(.jsonWebKey2020)
         self.verificationMaterial = .init(
             format: .jwk,
-            value: try JSONEncoder.DIDCoreEncoder().encode(from)
+            value: try JSONEncoder.didcomm.encode(from)
         )
     }
 }

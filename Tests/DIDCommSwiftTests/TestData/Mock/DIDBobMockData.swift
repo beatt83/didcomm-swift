@@ -36,6 +36,54 @@ let bobVerificationMethodKeyAgreeX25519_1 = DIDDocument.VerificationMethod(
     )
 )
 
+let bobMediator1VerificationMethodKeyAgreeX25519_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator1#key-x25519-1",
+    controller: "did:example:bobMediator1#key-x25519-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kty": "OKP",
+                "crv": "X25519",
+                "x": "GDTrI66K0pFfO54tlCSvfjjNapIs44dzpneBgyx0S3E"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
+let bobMediator2VerificationMethodKeyAgreeX25519_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator2#key-x25519-1",
+    controller: "did:example:bobMediator2#key-x25519-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kty": "OKP",
+                "crv": "X25519",
+                "x": "GDTrI66K0pFfO54tlCSvfjjNapIs44dzpneBgyx0S3E"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
+let bobMediator3VerificationMethodKeyAgreeX25519_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator3#key-x25519-1",
+    controller: "did:example:bobMediator3#key-x25519-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kty": "OKP",
+                "crv": "X25519",
+                "x": "GDTrI66K0pFfO54tlCSvfjjNapIs44dzpneBgyx0S3E"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
 let bobVerificationMethodKeyAgreeX25519_2 = DIDDocument.VerificationMethod(
     id: "did:example:bob#key-x25519-2",
     controller: "did:example:bob#key-x25519-2",
@@ -93,6 +141,60 @@ let bobVerificationMethodKeyAgreeP256_1 = DIDDocument.VerificationMethod(
         value: """
             {
                 "kid": "did:example:bob#key-p256-1",
+                "kty": "EC",
+                "crv": "P-256",
+                "x": "FQVaTOksf-XsCUrt4J1L2UGvtWaDwpboVlqbKBY2AIo",
+                "y": "6XFB9PYo7dyC5ViJSO9uXNYkxTJWn0d_mqJ__ZYhcNY"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
+let bobMediator1VerificationMethodKeyAgreeP256_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator1#key-p256-1",
+    controller: "did:example:bobMediator1#key-p256-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kid": "did:example:bobMediator1#key-p256-1",
+                "kty": "EC",
+                "crv": "P-256",
+                "x": "FQVaTOksf-XsCUrt4J1L2UGvtWaDwpboVlqbKBY2AIo",
+                "y": "6XFB9PYo7dyC5ViJSO9uXNYkxTJWn0d_mqJ__ZYhcNY"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
+let bobMediator2VerificationMethodKeyAgreeP256_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator2#key-p256-1",
+    controller: "did:example:bobMediator2#key-p256-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kid": "did:example:bobMediator2#key-p256-1",
+                "kty": "EC",
+                "crv": "P-256",
+                "x": "FQVaTOksf-XsCUrt4J1L2UGvtWaDwpboVlqbKBY2AIo",
+                "y": "6XFB9PYo7dyC5ViJSO9uXNYkxTJWn0d_mqJ__ZYhcNY"
+            }
+        """.data(using: .utf8)! // converting the string to Data type
+    )
+)
+
+let bobMediator3VerificationMethodKeyAgreeP256_1 = DIDDocument.VerificationMethod(
+    id: "did:example:bobMediator3#key-p256-1",
+    controller: "did:example:bobMediator3#key-p256-1",
+    type: KnownVerificationMaterialType.AuthenticationType.jsonWebKey2020.rawValue,
+    material: VerificationMaterial(
+        format: .jwk,
+        value: """
+            {
+                "kid": "did:example:bobMediator3#key-p256-1",
                 "kty": "EC",
                 "crv": "P-256",
                 "x": "FQVaTOksf-XsCUrt4J1L2UGvtWaDwpboVlqbKBY2AIo",
@@ -239,6 +341,61 @@ let bobVerificationMethodKeyAgreeP521NotInSecrets1 = DIDDocument.VerificationMet
     )
 )
 
+let bobServiceMultipleMediators = DIDDocument.Service(
+    id: "service1",
+    type: "DIDCommMessaging",
+    serviceEndpoint: AnyCodable(
+        arrayLiteral:
+            [
+                "uri": "did:example:bobMediator1",
+                "accept": [String](),
+                "routing_keys": [String]()
+            ] as [String: Any],
+            [
+                "uri": "did:example:bobMediator2",
+                "accept": [String](),
+                "routing_keys": [String]()
+            ] as [String: Any],
+            [
+                "uri": "did:example:bobMediator3",
+                "accept": [String](),
+                "routing_keys": ["did:example:bob#key-x25519-1"]
+            ] as [String: Any]
+                
+    )
+)
+
+let bobMediatorServices1 = DIDDocument.Service(
+    id: "service1",
+    type: "DIDCommMessaging",
+    serviceEndpoint: AnyCodable(dictionaryLiteral:
+        ("uri", "http://didcomm.com"),
+        ("accept", [String]()),
+        ("routing_keys", [String]())
+    )
+)
+
+let bobMediatorServices2 = DIDDocument.Service(
+    id: "service1",
+    type: "DIDCommMessaging",
+    serviceEndpoint: AnyCodable(dictionaryLiteral:
+        ("uri", "http://didcomm.com"),
+        ("accept", [String]()),
+        ("routing_keys", ["did:example:bob#key-x25519-1"])
+    )
+)
+
+let bobMediatorServices3 = DIDDocument.Service(
+    id: "service1",
+    type: "DIDCommMessaging",
+    serviceEndpoint: AnyCodable(dictionaryLiteral:
+        ("uri", "http://didcomm.com"),
+        ("accept", [String]()),
+        ("routing_keys", [String]())
+    )
+)
+
+
 let didDocBobTestVectors = DIDDocument(
     id: "did:example:bob",
     verificationMethods: [
@@ -301,9 +458,66 @@ let didDocBobWithNoSecrets = DIDDocument(
         .init(
             id: "did:example:123456789abcdefghi#didcomm-1",
             type: "",
-            serviceEndpoint: .string("http://example.com/path"),
-            routingKeys: ["did:example:mediator1#key-x25519-1"],
-            accept: [DIDCommProfile.v2.rawValue, DIDCommProfile.aip2_rfc587.rawValue]
+            serviceEndpoint: AnyCodable(
+                arrayLiteral: [
+                    "uri":"http://example.com/path",
+                    "accept":["didcomm/v2", "didcomm/aip2;env=rfc587"],
+                    "routing_keys":["did:example:mediator1#key-x25519-1"]
+                ] as [String: Any]
+            )
         )
     ]
+)
+
+let didDocBobSpecRoutingTestVectors = DIDDocument(
+    id: "did:example:bob",
+    verificationMethods: [
+        bobVerificationMethodKeyAgreeX25519_1,
+        bobVerificationMethodKeyAgreeX25519_2,
+        bobVerificationMethodKeyAgreeX25519_3,
+    ],
+    authentication: [],
+    keyAgreement: [
+        .stringValue("did:example:bob#key-x25519-1"),
+        .stringValue("did:example:bob#key-x25519-2"),
+        .stringValue("did:example:bob#key-x25519-3"),
+    ],
+    services: [bobServiceMultipleMediators]
+)
+
+let didDocBobSpecRoutingMediator1TestVectors = DIDDocument(
+    id: "did:example:bobMediator1",
+    verificationMethods: [
+        bobMediator1VerificationMethodKeyAgreeX25519_1,
+    ],
+    authentication: [],
+    keyAgreement: [
+        .stringValue("did:example:bobMediator1#key-x25519-1"),
+    ],
+    services: [bobMediatorServices1]
+)
+
+let didDocBobSpecRoutingMediator2TestVectors = DIDDocument(
+    id: "did:example:bobMediator2",
+    verificationMethods: [
+        bobMediator2VerificationMethodKeyAgreeX25519_1,
+    ],
+    authentication: [],
+    keyAgreement: [
+        .stringValue("did:example:bobMediator2#key-x25519-1"),
+    ],
+    services: [bobMediatorServices2]
+)
+
+let didDocBobSpecRoutingMediator3TestVectors = DIDDocument(
+    id: "did:example:bobMediator3",
+    verificationMethods: [
+        bobMediator3VerificationMethodKeyAgreeX25519_1,
+        bobMediator3VerificationMethodKeyAgreeP256_1,
+    ],
+    authentication: [],
+    keyAgreement: [
+        .stringValue("did:example:bobMediator3#key-x25519-1"),
+    ],
+    services: [bobMediatorServices3]
 )

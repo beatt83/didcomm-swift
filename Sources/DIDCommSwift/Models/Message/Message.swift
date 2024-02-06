@@ -16,23 +16,50 @@
 
 import Foundation
 
+/// Represents the MIME type of a DIDComm message.
 public enum Typ: String, Codable {
+    /// A message that is in plain text format without any encryption or signing.
     case plainText = "application/didcomm-plain+json"
+    /// A message that has been signed by the sender's key but not encrypted.
     case signed = "application/didcomm-signed+json"
+    /// A message that has been encrypted for the receiver, possibly also signed.
     case encrypted = "application/didcomm-encrypted+json"
 }
 
+/// Represents a DIDComm message, encapsulating data for secure communication.
 public struct Message: Equatable {
     
+    /// Represents claims transferred from a prior message, allowing for continuity and security context.
     public struct FromPrior {
+        /// The issuer of the prior message.
         public let iss: String?
+        /// The subject of the prior message.
         public let sub: String?
+        /// The intended audience of the prior message.
         public let aud: String?
+        /// The expiration time of the prior message.
         public let exp: Date?
+        /// The time before which the prior message is not valid.
         public let nbf: Date?
+        /// The issued at time of the prior message.
         public let iat: Date?
+        /// The JWT ID of the prior message.
         public let jti: String?
         
+        /// Initializes a new instance of `FromPrior`, which represents claims transferred from a prior message.
+        /// This allows for continuity and security context between messages in DIDComm protocols.
+        ///
+        /// - Parameters:
+        ///   - iss: The issuer of the prior message, typically the DID of the sender. Optional.
+        ///   - sub: The subject of the prior message, which could be the DID of the intended recipient. Optional.
+        ///   - aud: The intended audience of the prior message, often used in scenarios where the message is targeted to a specific party. Optional.
+        ///   - exp: The expiration time of the prior message, indicating when the message is considered no longer valid. Optional.
+        ///   - nbf: The "not before" time, indicating the earliest time at which the message is considered valid. Optional.
+        ///   - iat: The "issued at" time, marking when the message was issued. This can be used for timing and ordering messages. Optional.
+        ///   - jti: A unique identifier for the prior message, often used to prevent replay attacks or to reference the specific message in subsequent communications. Optional.
+        ///
+        /// This initializer allows for creating a `FromPrior` object that can be attached to a new DIDComm `Message` to provide context about a prior interaction or message.
+        /// The inclusion of these fields supports various security and protocol continuity features, such as validating the sender, ensuring message timeliness, and linking related messages.
         public init(
             iss: String? = nil,
             sub: String? = nil,
@@ -52,40 +79,75 @@ public struct Message: Equatable {
         }
     }
     
+    /// The unique identifier of the message.
     public let id: String
+    /// The body of the message, containing the actual data in binary format.
     public let body: Data?
+    /// A custom type identifier for the message, used for protocol-specific purposes.
     public let type: String
+    /// The MIME type of the message, indicating how it is formatted and encrypted.
     public let typ: Typ
+    /// The DID of the sender.
     public let from: String?
+    /// An array of DIDs for the intended recipients of the message.
     public let to: [String]?
+    /// The time when the message was created.
     public let createdTime: Date?
+    /// The time when the message will expire and no longer be valid.
     public let expiresTime: Date?
+    /// Claims transferred from a prior message, if applicable.
     public let fromPrior: FromPrior?
+    /// A JWT representation of the `fromPrior` claims, if applicable.
     public let fromPriorJwt: String?
+    /// An array of attachments included with the message.
     public let attachments: [Attachment]?
+    /// A flag indicating whether the sender requests an acknowledgement for this message.
     public let pleaseAck: Bool?
+    /// An acknowledgement ID, if this message is an acknowledgement for a previously received message.
     public let ack: String?
+    /// The thread ID, used for threading messages in a conversation.
     public let thid: String?
+    /// The parent thread ID, used for nesting conversations.
     public let pthid: String?
+    /// Custom headers for protocol-specific use cases.
     public let customHeaders: [String: String]?
     
+    /// Initializes a new instance of a DIDComm `Message`.
+    /// - Parameters:
+    ///   - id: A unique identifier for the message.
+    ///   - body: The body of the message containing the actual data in binary format. Optional.
+    ///   - type: A custom type identifier for the message, used for protocol-specific purposes.
+    ///   - typ: The MIME type of the message, indicating how it's formatted and encrypted.
+    ///   - from: The DID of the sender. Optional.
+    ///   - to: An array of DIDs for the intended recipients of the message. Optional.
+    ///   - createdTime: The creation time of the message. Optional.
+    ///   - expiresTime: The expiration time of the message, after which it's no longer valid. Optional.
+    ///   - fromPrior: Claims transferred from a prior message, if applicable. Optional.
+    ///   - fromPriorJwt: A JWT representation of the `fromPrior` claims, if applicable. Optional.
+    ///   - attachments: An array of attachments included with the message. Optional.
+    ///   - pleaseAck: A flag indicating whether the sender requests an acknowledgement for this message. Optional.
+    ///   - ack: An acknowledgement ID, if this message is an acknowledgement for a previously received message. Optional.
+    ///   - thid: The thread ID, used for threading messages in a conversation. Optional.
+    ///   - pthid: The parent thread ID, used for nesting conversations. Optional.
+    ///   - customHeaders: Custom headers for protocol-specific use cases. Optional.
+    /// - Returns: An instance of `Message` configured with the provided parameters.
     public init(
         id: String,
-        body: Data?,
+        body: Data? = nil,
         type: String,
         typ: Typ,
-        from: String?,
-        to: [String]?,
-        createdTime: Date?,
-        expiresTime: Date?,
-        fromPrior: FromPrior?,
-        fromPriorJwt: String?,
-        attachments: [Attachment]?,
-        pleaseAck: Bool?,
-        ack: String?,
-        thid: String?,
-        pthid: String?,
-        customHeaders: [String : String]?
+        from: String? = nil,
+        to: [String]? = nil,
+        createdTime: Date? = nil,
+        expiresTime: Date? = nil,
+        fromPrior: FromPrior? = nil,
+        fromPriorJwt: String? = nil,
+        attachments: [Attachment]? = nil,
+        pleaseAck: Bool? = nil,
+        ack: String? = nil,
+        thid: String? = nil,
+        pthid: String? = nil,
+        customHeaders: [String : String]? = nil
     ) {
         self.id = id
         self.body = body
@@ -105,6 +167,11 @@ public struct Message: Equatable {
         self.customHeaders = customHeaders
     }
     
+    /// Updates the `fromPrior` and `fromPriorJwt` fields of a `Message` and returns a new `Message` instance.
+    /// - Parameters:
+    ///   - fromPrior: New `FromPrior` claims to be included in the message. Optional.
+    ///   - jwt: A new JWT representation of the `fromPrior` claims. Optional.
+    /// - Returns: A new `Message` instance with updated `fromPrior` and `fromPriorJwt` fields.
     public func updateFromPrior(fromPrior: FromPrior?, jwt: String?) -> Message {
         .init(
             id: id,
@@ -181,6 +248,28 @@ private let registeredMessageFields = [
 
 extension Message {
     
+    /// Initializes a new `Message` instance from the given data object, which is expected to be a JSON representation of a message.
+    ///
+    /// This initializer attempts to deserialize the provided data into a JSON object and then initialize a `Message` instance using that JSON object.
+    /// It encapsulates the process of data deserialization and message parsing, providing a straightforward way to create a `Message` from raw data.
+    ///
+    /// - Parameter data: The data object containing the JSON representation of a DIDComm message. This data should follow the DIDComm message structure.
+    ///
+    /// - Throws: This initializer can throw an error in several scenarios:
+    ///   - `DIDCommError.somethingWentWrong`: If the data cannot be deserialized into a valid JSON object or if the resulting JSON does not conform to the expected structure for a DIDComm message.
+    ///   - Any error thrown by `JSONSerialization.jsonObject(with:)`: If the data is not a valid JSON object.
+    ///   - Any error thrown by `self.init(fromJson:)`: If initializing the `Message` with the JSON object fails due to missing required fields or invalid data types.
+    ///
+    /// - Returns: An instance of `Message` initialized with the data from the provided JSON object.
+    ///
+    /// Usage of this initializer simplifies the process of creating a `Message` from data received, for example, over a network or loaded from storage, ensuring that the data conforms to the expected DIDComm message format before proceeding with further processing.
+    public init(from data: Data) throws {
+        guard let messageJson = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw DIDCommError.malformedMessage(try data.tryToString())
+        }
+        try self.init(fromJson: messageJson)
+    }
+    
     init(fromJson: [String: Any]) throws {
         guard
             let id = fromJson["id"] as? String,
@@ -226,7 +315,22 @@ extension Message {
         }
     }
     
-    func didcommJson() throws -> Data {
+    /// Converts the `Message` instance into a JSON `Data` object suitable for DIDComm communication.
+    ///
+    /// This method serializes the `Message` into a JSON representation, including all relevant fields and custom headers.
+    /// It ensures that optional properties are included only when they are present and formats them appropriately for DIDComm specifications.
+    ///
+    /// - Throws: This method can throw errors in several scenarios:
+    ///   - Any error from `JSONSerialization.data(withJSONObject:options:)`: If the message cannot be serialized into JSON data due to invalid content.
+    ///   - `DIDCommError.somethingWentWrong`: If any part of the message contains data that cannot be serialized into JSON.
+    ///   - Any error from processing the `body` data, if present, especially if it's not valid JSON.
+    ///
+    /// - Returns: A `Data` object representing the serialized JSON of the DIDComm message, ready for transmission or storage.
+    ///
+    /// The method carefully constructs a dictionary representing the message's properties, including handling of optional values like `from`, `to`, `createdTime`, and others.
+    /// Dates are formatted specifically for DIDComm messaging, and attachments are processed to include their serialized JSON representations.
+    /// This process ensures that the resulting JSON data adheres to the DIDComm message structure and specifications.
+    public func didcommJson() throws -> Data {
         var jsonDic: [String: Any] = [
             "id": id,
             "type": type,

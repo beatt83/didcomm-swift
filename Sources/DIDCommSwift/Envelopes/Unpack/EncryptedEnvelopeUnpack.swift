@@ -36,20 +36,18 @@ struct EncryptedEnvelopeUnpack {
             guard let apu = jweJson.protected?.agreementPartyUInfo,
                 try apu.tryToString() == senderKid
             else {
-                // APU is not equal to senderKid
-                throw DIDCommError.somethingWentWrong
+                throw DIDCommError.malformedMessage("APU is different of senderKid")
             }
         }
         
         let recipients = jweJson.getKids()
-        let apv = try jweJson.protected?.agreementPartyVInfo ?? APV.calculateAPV(kids: recipients)
         
         if let skid = try jweJson.protected?.senderKeyID
             ?? jweJson.protected?.agreementPartyUInfo?.tryToString()
         {
             let (from, to) = try await keySelector.findAuthCryptKeys(from: skid, to: recipients)
             guard let recipientKey = to.first?.jwk else {
-                throw DIDCommError.somethingWentWrong
+                throw DIDCommError.secretsNotFound(recipients)
             }
             let decrypted = try JWE.decrypt(jweJson: packedMessage, senderKey: from.jwk, recipientKey: recipientKey)
             
@@ -62,14 +60,14 @@ struct EncryptedEnvelopeUnpack {
                 let keyAlg = jweJson.protected?.keyManagementAlgorithm,
                 let encAlg = jweJson.protected?.encodingAlgorithm
             {
-                metadata.encAlgAuth = try AuthCryptAlg.fromReference(keyAlg: keyAlg, encAlg: encAlg)
+                metadata.encAlgAuth = try AuthenticatedEncryptionAlg.fromReference(keyAlg: keyAlg, encAlg: encAlg)
             }
             
             return (message: decrypted, metadata: metadata)
         } else {
             let recipientsKeys = try await keySelector.findAnonCryptKeys(to: recipients)
             guard let recipientKey = recipientsKeys.first?.jwk else {
-                throw DIDCommError.somethingWentWrong
+                throw DIDCommError.secretsNotFound(recipients)
             }
             let decrypted = try JWE.decrypt(jweJson: packedMessage, recipientKey: recipientKey)
             
@@ -82,7 +80,7 @@ struct EncryptedEnvelopeUnpack {
                 let keyAlg = jweJson.protected?.keyManagementAlgorithm,
                 let encAlg = jweJson.protected?.encodingAlgorithm
             {
-                metadata.encAlgAnon = try AnonCryptAlg.fromReference(keyAlg: keyAlg, encAlg: encAlg)
+                metadata.encAlgAnon = try AnonymousEncryptionAlgorithms.fromReference(keyAlg: keyAlg, encAlg: encAlg)
             }
             
             return (message: decrypted, metadata: metadata)
