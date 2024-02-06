@@ -284,7 +284,7 @@ if let routingResults = packed.routingResult {
 
 ## Documentation
 
-You can access [here](https://beatt83.github.io/didcomm-swift/documentation/didcomm_swift/) to the documentation.
+You can access [here](https://beatt83.github.io/didcomm-swift/documentation/didcommswift/) to the documentation.
 
 ## References
 
