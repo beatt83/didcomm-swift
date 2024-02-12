@@ -42,12 +42,15 @@ final class RoutingTests: XCTestCase {
         XCTAssertTrue(mediator1Routing.value.to.contains("did:example:bobMediator1"))
         XCTAssertTrue(mediator1Routing.children.isEmpty) // Just forwarded once
         XCTAssertEqual(forwardMessages[0].routedBy.count, 1) // Just routed by 1
+        XCTAssertEqual(forwardMessages[0].sendTo, ["did:example:bobMediator1#key-x25519-1"])
         XCTAssertTrue(mediator2Routing.value.to.contains("did:example:bobMediator2"))
         XCTAssertEqual(mediator2Routing.children.count, 1) // Forwarded twice
         XCTAssertEqual(forwardMessages[1].routedBy.count, 2) // Just routed by 2
+        XCTAssertEqual(forwardMessages[1].sendTo, ["did:example:bob#key-x25519-1"])
         XCTAssertTrue(mediator3Routing.value.to.contains("did:example:bobMediator3"))
         XCTAssertTrue(mediator3Routing.children.isEmpty) // Just forwarded once
         XCTAssertEqual(forwardMessages[2].routedBy.count, 2) // Just routed by 2
+        XCTAssertEqual(forwardMessages[2].sendTo, ["did:example:bob#key-x25519-1", "did:example:bobMediator3#key-x25519-1"])
     }
     
     func testPackRoutingMultipleRecipientsMessage() async throws {
@@ -78,12 +81,15 @@ final class RoutingTests: XCTestCase {
         XCTAssertTrue(mediator2Routing.value.to.contains("did:example:bobMediator2"))
         XCTAssertEqual(mediator2Routing.children.count, 1) // Forwarded twice
         XCTAssertEqual(forwardMessages[1].routedBy.count, 2) // Just routed by 2
+        XCTAssertEqual(forwardMessages[1].sendTo, ["did:example:bob#key-x25519-1"])
         XCTAssertTrue(mediator3Routing.value.to.contains("did:example:bobMediator3"))
         XCTAssertTrue(mediator3Routing.value.to.contains("did:example:bob#key-x25519-1"))
         XCTAssertTrue(mediator3Routing.children.isEmpty) // Just forwarded once
         XCTAssertEqual(forwardMessages[2].routedBy.count, 2) // Just routed by 2
+        XCTAssertEqual(forwardMessages[2].sendTo, ["did:example:bob#key-x25519-1", "did:example:bobMediator3#key-x25519-1"])
         XCTAssertTrue(aliceRouting.value.to.contains("did:example:alice#key-x25519-1"))
         XCTAssertTrue(aliceRouting.children.isEmpty) // Just forwarded once
         XCTAssertEqual(forwardMessages[3].routedBy.count, 1) // Just routed by 2
+        XCTAssertEqual(forwardMessages[3].sendTo, ["did:example:alice#key-x25519-1"])
     }
 }
