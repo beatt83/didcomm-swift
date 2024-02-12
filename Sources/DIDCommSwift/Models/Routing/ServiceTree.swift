@@ -56,15 +56,15 @@ private func buildBranchsTree(
     to: String,
     parentNode: Node<ServiceTree.Branch>
 ) async throws {
-    guard let did = DID(from: to) else {
+    guard let didUrl = DIDUrl(from: to) else {
         throw DIDCommError.invalidDID(to)
     }
     
-    let document = try await didResolver.resolve(did: did)
+    let document = try await didResolver.resolve(did: didUrl.did)
     let routingTo = try getRoutingURIAndKeys(document: document)
     
     try await routingTo.asyncForEach {
-        let nextDID = DID(from: $0.uri)
+        let nextDID = DIDUrl(from: $0.uri)?.did
         guard nextDID != nil || !$0.keys.isEmpty else {
             return
         }

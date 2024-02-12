@@ -25,6 +25,8 @@ public struct RoutingResult {
     public struct ForwardMessageResult {
         /// The identifier (DID) of the final recipient of the forwarded message.
         public let finalRecipient: String
+        /// An list with the recipients for the first forward message (whom you need to send the forward message).
+        public let sendTo: [String]
         /// An ordered list of identifiers (DIDs) for the mediators that routed the message.
         public let routedBy: [String]
         /// The final encrypted forward message intended for the final recipient.
@@ -42,6 +44,7 @@ public struct RoutingResult {
                 let finalRecipient = leaf.value.finalRecipient
                 return ForwardMessageResult(
                     finalRecipient: finalRecipient,
+                    sendTo: leaf.value.encryptedResult.toKids,
                     routedBy: routedBy,
                     forwardMessage: leaf.value.encryptedResult
                 )
