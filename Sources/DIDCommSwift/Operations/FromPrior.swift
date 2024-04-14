@@ -43,13 +43,13 @@ struct FromPrior {
         let key = try await keySelector.findVerificationKey(signFrom: issKid)
         let jwt = try JWT<DefaultJWTClaimsImpl>.verify(jwtString: fromPriorJwt, senderKey: key.jwk)
         let newFromPrior = Message.FromPrior(
-            iss: jwt.payload.issuer,
-            sub: jwt.payload.subject,
-            aud: jwt.payload.audience?.first,
-            exp: jwt.payload.expirationTime,
-            nbf: jwt.payload.notBeforeTime,
-            iat: jwt.payload.issuedAt,
-            jti: jwt.payload.jwtID
+            iss: jwt.payload.iss,
+            sub: jwt.payload.sub,
+            aud: jwt.payload.aud?.first,
+            exp: jwt.payload.exp,
+            nbf: jwt.payload.nbf,
+            iat: jwt.payload.iat,
+            jti: jwt.payload.jti
         )
         
         let updatedMessage = message
@@ -80,13 +80,13 @@ private func extractFromPriorKid(fromPriorJwt: String) throws -> String? {
 extension DefaultJWTClaimsImpl {
     init(fromPrior: Message.FromPrior) {
         self.init(
-            issuer: fromPrior.iss,
-            subject: fromPrior.sub,
-            audience: fromPrior.aud.map { [$0] },
-            expirationTime: fromPrior.exp,
-            notBeforeTime: fromPrior.nbf,
-            issuedAt: fromPrior.iat,
-            jwtID: fromPrior.jti
+            iss: fromPrior.iss,
+            sub: fromPrior.sub,
+            aud: fromPrior.aud.map { [$0] },
+            exp: fromPrior.exp,
+            nbf: fromPrior.nbf,
+            iat: fromPrior.iat,
+            jti: fromPrior.jti
         )
     }
 }
