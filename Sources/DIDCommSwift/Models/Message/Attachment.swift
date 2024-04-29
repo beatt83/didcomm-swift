@@ -319,10 +319,10 @@ extension Attachment {
         self.data = try attachmentDataFromJson(data)
         self.format = fromJson["format"] as? String
         self.filename = fromJson["filename"] as? String
-        self.mediaType = fromJson["mediaType"] as? String
-        self.byteCount = (fromJson["byteCount"] as? NSNumber)?.intValue
-        self.lastModTime = (fromJson["lastModTime"] as? String)
-            .flatMap { Date(fromDidcommString: $0) }
+        self.mediaType = fromJson["media_type"] as? String
+        self.byteCount = (fromJson["byte_count"] as? NSNumber)?.intValue
+        self.lastModTime = (fromJson["lastmod_time"] as? NSNumber)
+            .flatMap { Date(fromDidcommInt: $0) }
         self.description = fromJson["description"] as? String
     }
     
@@ -334,10 +334,10 @@ extension Attachment {
         
         description.map { jsonDic["description"] = $0 }
         filename.map { jsonDic["filename"] = $0 }
-        mediaType.map { jsonDic["mediaType"] = $0 }
+        mediaType.map { jsonDic["media_type"] = $0 }
         format.map { jsonDic["format"] = $0 }
-        lastModTime.map { jsonDic["lastModTime"] = $0.formattedForDidcommPack()}
-        byteCount.map { jsonDic["byteCount"] = $0 }
+        lastModTime.map { jsonDic["lastmod_time"] = $0.formattedForDidcommPack()}
+        byteCount.map { jsonDic["byte_count"] = $0 }
         
         return jsonDic
     }

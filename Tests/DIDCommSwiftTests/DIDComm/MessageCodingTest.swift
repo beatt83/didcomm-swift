@@ -59,4 +59,31 @@ final class MessageCodingTest: XCTestCase {
         XCTAssertEqual(message.pthid, parsed.pthid)
         XCTAssertEqual(message.customHeaders, parsed.customHeaders)
     }
+    
+    func testAttachment() throws {
+        let attachment = Attachment(
+            id: "test",
+            data: JsonAttachmentData(json: "{}"),
+            description: "testDescription",
+            filename: "testFilename",
+            mediaType: "testMediat",
+            format: "testFormat",
+            lastModTime: Date(),
+            byteCount: 10
+        )
+        
+        let jsonData = try attachment.didcommJsonDic()
+        
+        let parsed = try Attachment(fromJson: jsonData)
+        
+        XCTAssertEqual(attachment.id, parsed.id)
+        XCTAssertEqual(attachment.description, parsed.description)
+        XCTAssertEqual(attachment.filename, parsed.filename)
+        XCTAssertEqual(attachment.mediaType, parsed.mediaType)
+        XCTAssertEqual(attachment.format, parsed.format)
+        XCTAssertEqual(attachment.byteCount, parsed.byteCount)
+        XCTAssertNotNil(jsonData["media_type"])
+        XCTAssertNotNil(jsonData["lastmod_time"])
+        XCTAssertNotNil(jsonData["byte_count"])
+    }
 }

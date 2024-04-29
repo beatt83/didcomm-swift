@@ -19,6 +19,7 @@ import Foundation
 extension JSONEncoder {
     static var didcomm: JSONEncoder {
         let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
             encoder.outputFormatting = [.withoutEscapingSlashes, .sortedKeys]
         } else {
