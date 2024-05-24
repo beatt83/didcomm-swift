@@ -84,6 +84,18 @@ let charlieAuthMethod25519 = DIDDocument.VerificationMethod(
     )
 )
 
+let charlieServiceEndpoint1 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "did:example:mediator2"),
+                                        ("accept", ["didcomm/v2", "didcomm/aip2;env=rfc587"]),
+                                        ("routing_keys", ["did:example:mediator1#key-x25519-1"])
+)
+
+let charlieServices1 = AnyCodable(dictionaryLiteral:
+                                        ("id", "did:example:123456789abcdefghi#didcomm-1"),
+                                        ("type", ""),
+                                        ("serviceEndpoint", [bobMediatorServiceEndpoint1])
+)
+
 let didDocCharlie = DIDDocument(
     id: "did:example:charlie",
     verificationMethods: [
@@ -98,17 +110,5 @@ let didDocCharlie = DIDDocument(
 //        .stringValue("did:example:charlie#key-x25519-2"),
 //        .stringValue("did:example:charlie#key-x25519-3")
     ],
-    services: [
-        .init(
-            id: "did:example:123456789abcdefghi#didcomm-1",
-            type: "",
-            serviceEndpoint: AnyCodable(
-                arrayLiteral: [
-                    "uri": "did:example:mediator2",
-                    "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
-                    "routing_keys": ["did:example:mediator1#key-x25519-1"]
-                ] as [String: Any]
-            )
-        )
-    ]
+    services: [charlieServices1]
 )

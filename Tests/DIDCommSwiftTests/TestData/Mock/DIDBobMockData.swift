@@ -365,34 +365,82 @@ let bobServiceMultipleMediators = DIDDocument.Service(
     )
 )
 
-let bobMediatorServices1 = DIDDocument.Service(
-    id: "service1",
-    type: "DIDCommMessaging",
-    serviceEndpoint: AnyCodable(dictionaryLiteral:
-        ("uri", "http://didcomm.com"),
-        ("accept", [String]()),
-        ("routing_keys", [String]())
-    )
+let bobServiceEndpoint1 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", [String]())
 )
 
-let bobMediatorServices2 = DIDDocument.Service(
-    id: "service1",
-    type: "DIDCommMessaging",
-    serviceEndpoint: AnyCodable(dictionaryLiteral:
-        ("uri", "http://didcomm.com"),
-        ("accept", [String]()),
-        ("routing_keys", ["did:example:bob#key-x25519-1"])
-    )
+let bobServiceEndpoint2 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", ["did:example:bob#key-x25519-1"])
 )
 
-let bobMediatorServices3 = DIDDocument.Service(
-    id: "service1",
-    type: "DIDCommMessaging",
-    serviceEndpoint: AnyCodable(dictionaryLiteral:
-        ("uri", "http://didcomm.com"),
-        ("accept", [String]()),
-        ("routing_keys", [String]())
-    )
+let bobServiceEndpoint3 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", ["did:example:alice#key-x25519-1"])
+)
+
+let bobMediatorServiceEndpoint1 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", [String]())
+)
+
+let bobMediatorServiceEndpoint2 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", ["did:example:bob#key-x25519-1"])
+)
+
+let bobMediatorServiceEndpoint3 = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://didcomm.com"),
+                                        ("accept", [String]()),
+                                        ("routing_keys", [String]())
+)
+
+let bobMediatorServices1 = AnyCodable(dictionaryLiteral:
+                                        ("id", "service1"),
+                                        ("type", "DIDCommMessaging"),
+                                        ("serviceEndpoint", [bobMediatorServiceEndpoint1])
+)
+
+let bobMediatorServices2 = AnyCodable(dictionaryLiteral:
+                                        ("id", "service2"),
+                                        ("type", "DIDCommMessaging"),
+                                        ("serviceEndpoint", [bobMediatorServiceEndpoint2])
+)
+
+let bobMediatorServices3 = AnyCodable(dictionaryLiteral:
+                                        ("id", "service3"),
+                                        ("type", "DIDCommMessaging"),
+                                        ("serviceEndpoint", [bobMediatorServiceEndpoint3])
+)
+
+let bobMediatorMultipleMediators = AnyCodable(dictionaryLiteral:
+                                        ("id", "service1"),
+                                        ("type", "DIDCommMessaging"),
+                                        ("serviceEndpoint", AnyCodable(
+                                            arrayLiteral:
+                                                [
+                                                    "uri": "did:example:bobMediator1",
+                                                    "accept": [String](),
+                                                    "routing_keys": [String]()
+                                                ] as [String: Any],
+                                                [
+                                                    "uri": "did:example:bobMediator2",
+                                                    "accept": [String](),
+                                                    "routing_keys": [String]()
+                                                ] as [String: Any],
+                                                [
+                                                    "uri": "did:example:bobMediator3",
+                                                    "accept": [String](),
+                                                    "routing_keys": ["did:example:bob#key-x25519-1"]
+                                                ] as [String: Any]
+                                                    
+                                        ))
 )
 
 
@@ -420,6 +468,18 @@ let didDocBobTestVectors = DIDDocument(
         .stringValue("did:example:bob#key-p521-1"),
         .stringValue("did:example:bob#key-p521-2"),
     ]
+)
+
+let bobServiceEndpoint = AnyCodable(dictionaryLiteral:
+                                        ("uri", "http://example.com/path"),
+                                        ("accept", ["didcomm/v2", "didcomm/aip2;env=rfc587"]),
+                                        ("routing_keys", ["did:example:mediator1#key-x25519-1"])
+                                    )
+
+let bobService = AnyCodable(dictionaryLiteral:
+                                        ("id", "did:example:123456789abcdefghi#didcomm-1"),
+                                        ("type", ""),
+                                        ("serviceEndpoint", bobServiceEndpoint)
 )
 
 let didDocBobWithNoSecrets = DIDDocument(
@@ -454,19 +514,7 @@ let didDocBobWithNoSecrets = DIDDocument(
         .stringValue("did:example:bob#key-p521-2"),
         .stringValue("did:example:bob#key-p521-not-secrets-1"),
     ],
-    services: [
-        .init(
-            id: "did:example:123456789abcdefghi#didcomm-1",
-            type: "",
-            serviceEndpoint: AnyCodable(
-                arrayLiteral: [
-                    "uri":"http://example.com/path",
-                    "accept":["didcomm/v2", "didcomm/aip2;env=rfc587"],
-                    "routing_keys":["did:example:mediator1#key-x25519-1"]
-                ] as [String: Any]
-            )
-        )
-    ]
+    services: [bobServiceEndpoint]
 )
 
 let didDocBobSpecRoutingTestVectors = DIDDocument(
@@ -482,7 +530,7 @@ let didDocBobSpecRoutingTestVectors = DIDDocument(
         .stringValue("did:example:bob#key-x25519-2"),
         .stringValue("did:example:bob#key-x25519-3"),
     ],
-    services: [bobServiceMultipleMediators]
+    services: [bobMediatorMultipleMediators]
 )
 
 let didDocBobSpecRoutingMediator1TestVectors = DIDDocument(

@@ -89,7 +89,7 @@ private func buildBranchsTree(
 
 private func getRoutingURIAndKeys(document: DIDDocument) throws -> [(uri: String, keys: [String])] {
     try document.services?
-        .first { $0.type.contains("DIDCommMessaging") }
+        .first { (try? $0.toDIDCommService()) != nil }
         .map {
             try $0.toDIDCommService().serviceEndpoint
                 .map { ($0.uri, $0.routingKeys) }
@@ -98,71 +98,172 @@ private func getRoutingURIAndKeys(document: DIDDocument) throws -> [(uri: String
 
 private func getRoutingKeys(document: DIDDocument) throws -> [String] {
     try document.services?
-        .first { $0.type.contains("DIDCommMessaging") }
+        .first { (try? $0.toDIDCommService()) != nil }
         .flatMap {
             try $0.toDIDCommService().serviceEndpoint
                 .flatMap(\.routingKeys)
         } ?? []
 }
 
-private extension DIDDocument.Service {
+private extension AnyCodable {
     func toDIDCommService() throws -> Routing.DIDCommService {
-        guard self.type == didcommServiceType else {
-            throw DIDCommError.notDidCommServiceType
+        guard
+            let dic = value as? [String: Any],
+            let id = dic["id"] as? String,
+            let type = dic["type"] as? String,
+            type == didcommServiceType,
+            let serviceEndpoint = dic["serviceEndpoint"]
+        else { throw DIDCommError.notDidCommServiceType }
+        
+        switch serviceEndpoint {
+        case let endpoint as String:
+            return try parseServiceString(id: id, type: type, service: endpoint)
+        case let endpoint as [String]:
+            return try parseServiceStringArray(id: id, type: type, service: endpoint)
+        case let endpoint as [String: Any]:
+            return try parseServiceDic(id: id, type: type, service: endpoint)
+        case let endpoint as [[String: Any]]:
+            return try parseServiceArrayDic(id: id, type: type, service: endpoint)
+        case let endpoint as AnyCodable:
+            return try parseServiceAnyCodable(id: id, type: type, service: endpoint)
+        case let endpoint as [AnyCodable]:
+            return try parseServiceAnyCodableArray(id: id, type: type, service: endpoint)
+        default:
+            return .init(
+                id: id,
+                type: type,
+                serviceEndpoint: []
+            )
         }
-        switch self.serviceEndpoint.value {
-        case let value as String:
-            return .init(
-                id: self.id,
-                type: self.type,
-                serviceEndpoint: [
-                    .init(uri: value, accept: [], routingKeys: [])
-                ]
-            )
-        case let value as [String]:
-            return .init(
-                id: self.id,
-                type: self.type,
-                serviceEndpoint: value.map {
-                    .init(uri: $0, accept: [], routingKeys: [])
+    }
+    
+    func parseServiceString(id: String, type: String, service: String) throws -> Routing.DIDCommService {
+        return .init(
+            id: id,
+            type: type,
+            serviceEndpoint: [
+                .init(uri: service, accept: [], routingKeys: [])
+            ]
+        )
+    }
+    
+    func parseServiceStringArray(id: String, type: String, service: [String]) throws -> Routing.DIDCommService {
+        return .init(
+            id: id,
+            type: type,
+            serviceEndpoint: service.map {
+                .init(uri: $0, accept: [], routingKeys: [])
+            }
+        )
+    }
+    
+    func parseServiceDic(id: String, type: String, service: [String: Any]) throws -> Routing.DIDCommService {
+        guard let uri = service["uri"] as? String else {
+            throw DIDCommError.missingUri
+        }
+        return .init(
+            id: id,
+            type: type,
+            serviceEndpoint: [
+                .init(
+                    uri: uri,
+                    accept: (service["accept"] as? [String]) ?? [],
+                    routingKeys: (service["routing_keys"] as? [String]) ?? []
+                )
+            ]
+        )
+    }
+    
+    func parseServiceArrayDic(id: String, type: String, service: [[String: Any]]) throws -> Routing.DIDCommService {
+        return .init(
+            id: id,
+            type: type,
+            serviceEndpoint: try service.map {
+                guard let uri = $0["uri"] as? String else {
+                    throw DIDCommError.missingUri
                 }
+                return .init(
+                    uri: uri,
+                    accept: ($0["accept"] as? [String]) ?? [],
+                    routingKeys: ($0["routing_keys"] as? [String]) ?? []
+                )
+            }
+        )
+    }
+    
+    func parseServiceAnyCodableArray(id: String, type: String, service: [AnyCodable]) throws -> Routing.DIDCommService {
+        return .init(
+            id: id,
+            type: type,
+            serviceEndpoint: try service.flatMap { try parseServiceEndpoint(serviceEndpoint: $0) }
+        )
+    }
+    
+    func parseServiceAnyCodable(id: String, type: String, service: AnyCodable) throws -> Routing.DIDCommService {
+        switch service.value {
+        case let value as String:
+            return try parseServiceString(id: id, type: type, service: value)
+        case let value as [String]:
+            return try parseServiceStringArray(id: id, type: type, service: value)
+        case let value as [String: Any]:
+            return try parseServiceDic(id: id, type: type, service: value)
+        case let value as [[String: Any]]:
+            return try parseServiceArrayDic(id: id, type: type, service: value)
+        case let value as AnyCodable:
+            return .init(
+                id: id,
+                type: type,
+                serviceEndpoint: try parseServiceEndpoint(serviceEndpoint: value)
             )
+        case let value as [AnyCodable]:
+            return .init(
+                id: id,
+                type: type,
+                serviceEndpoint: try value.flatMap { try parseServiceEndpoint(serviceEndpoint: $0) }
+            )
+        default:
+            return .init(
+                id: id,
+                type: type,
+                serviceEndpoint: []
+            )
+        }
+    }
+    
+    func parseServiceEndpoint(serviceEndpoint: AnyCodable) throws -> [Routing.DIDCommService.ServiceEndpoint] {
+        switch serviceEndpoint.value {
+        case let value as String:
+            return [
+                .init(uri: value, accept: [], routingKeys: [])
+            ]
+        case let value as [String]:
+            return value.map {
+                .init(uri: $0, accept: [], routingKeys: [])
+            }
         case let value as [String: Any]:
             guard let uri = value["uri"] as? String else {
                 throw DIDCommError.missingUri
             }
-            return .init(
-                id: self.id,
-                type: self.type,
-                serviceEndpoint: [
-                    .init(
-                        uri: uri,
-                        accept: (value["accept"] as? [String]) ?? [],
-                        routingKeys: (value["routing_keys"] as? [String]) ?? []
-                    )
-                ]
-            )
+            return [
+                .init(
+                    uri: uri,
+                    accept: (value["accept"] as? [String]) ?? [],
+                    routingKeys: (value["routing_keys"] as? [String]) ?? []
+                )
+            ]
         case let value as [[String: Any]]:
-            return .init(
-                id: self.id,
-                type: self.type,
-                serviceEndpoint: try value.map {
-                    guard let uri = $0["uri"] as? String else {
-                        throw DIDCommError.missingUri
-                    }
-                    return .init(
-                        uri: uri,
-                        accept: ($0["accept"] as? [String]) ?? [],
-                        routingKeys: ($0["routing_keys"] as? [String]) ?? []
-                    )
+            return try value.map {
+                guard let uri = $0["uri"] as? String else {
+                    throw DIDCommError.missingUri
                 }
-            )
+                return .init(
+                    uri: uri,
+                    accept: ($0["accept"] as? [String]) ?? [],
+                    routingKeys: ($0["routing_keys"] as? [String]) ?? []
+                )
+            }
         default:
-            return .init(
-                id: self.id,
-                type: self.type,
-                serviceEndpoint: []
-            )
+            return []
         }
     }
 }
