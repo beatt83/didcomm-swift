@@ -157,15 +157,23 @@ let aliceAuthMethodSecp256k1 = DIDDocument.VerificationMethod(
     )
 )
 
-let aliceServiceRoutingKeys = DIDDocument.Service(
-    id: "service1",
-    type: "DIDCommMessaging",
-    serviceEndpoint: AnyCodable(dictionaryLiteral:
-        ("uri", "http://didcomm.com"),
-        ("accept", [String]()),
-        ("routing_keys", ["did:example:alice#key-x25519-1"])
-    )
-)
+//let aliceServiceEndpoint = AnyCodable(dictionaryLiteral:
+//                                        ("uri", "http://didcomm.com"),
+//                                        ("accept", [String]()),
+//                                        ("routing_keys", ["did:example:alice#key-x25519-1"])
+//                                    )
+
+let aliceServiceRoutingKeysDic = [
+    "id": "service1",
+    "type": "DIDCommMessaging",
+    "serviceEndpoint": [
+        "uri": "http://didcomm.com",
+        "accept": [String](),
+        "routing_keys": ["did:example:alice#key-x25519-1"]
+    ]
+] as! [String: Any]
+
+let aliceServiceRoutingKeys = AnyCodable(aliceServiceRoutingKeysDic)
 
 let didDocAliceSpecTestVectors = DIDDocument(
     id: "did:example:alice",
