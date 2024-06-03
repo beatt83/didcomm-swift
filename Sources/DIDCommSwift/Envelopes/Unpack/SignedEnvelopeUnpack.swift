@@ -40,7 +40,7 @@ struct SignedEnvelopeUnpack {
             guard let key = try? await keySelector.findVerificationKey(signFrom: kid) else {
                 return false
             }
-            let result = try JWS.verify(jwsJson: packedMessage, jwk: key.jwk)
+            let result = try JWS.verify(jwsJson: packedMessage, key: key.jwk)
             if
                 result,
                 let signature = try jwsJson.signatures.first(where: { try $0.getKid() == kid }),
