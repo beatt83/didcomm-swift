@@ -21,7 +21,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swift-libp2p/swift-multibase.git", .upToNextMajor(from: "0.0.1")),
         .package(url: "https://github.com/beatt83/didcore-swift.git", .upToNextMinor(from: "2.0.0")),
-        .package(url: "https://github.com/beatt83/jose-swift.git", .upToNextMinor(from: "3.0.1"))
+        .package(url: "https://github.com/beatt83/jose-swift.git", .upToNextMajor(from: "3.1.0"))
     ],
     targets: [
         .target(
