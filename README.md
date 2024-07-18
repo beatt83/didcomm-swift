@@ -90,7 +90,7 @@ dependencies: [
 |---------------|------------------|
 | A256CBC-HS512 |:white_check_mark:|
 | A256GCM       |:white_check_mark:|
-| XC20P         |                  |
+| XC20P         |:white_check_mark:|
 
 </td><td valign="top">
 
