@@ -25,7 +25,7 @@ extension AnonymousEncryptionAlgorithms {
         case .a256GCM:
             return (ContentEncryptionAlgorithm.a256GCM, KeyManagementAlgorithm.ecdhESA256KW)
         case .XC20P:
-            return (ContentEncryptionAlgorithm.xC20PKW, KeyManagementAlgorithm.ecdhESA256KW)
+            return (ContentEncryptionAlgorithm.xC20P, KeyManagementAlgorithm.ecdhESA256KW)
         }
     }
     
@@ -35,7 +35,7 @@ extension AnonymousEncryptionAlgorithms {
             return .a256CBCHS512
         case (.ecdhESA256KW, .a256GCM):
             return .a256GCM
-        case (.ecdhESA256KW, .xC20PKW):
+        case (.ecdhESA256KW, .xC20P):
             return .XC20P
         default:
             throw DIDCommError.unsupportedCryptoAlgorithme(algorithm: keyAlg.rawValue, encoding: encAlg.rawValue)
