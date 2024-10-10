@@ -36,7 +36,7 @@ struct RecipientKeySelector {
         
         let document = try await didResolver.resolve(did: didFrom.did)
         
-        guard let method = document.verificationMethods.first(where: { $0.id == signFrom }) else {
+        guard let method = document.verificationMethods?.first(where: { $0.id == signFrom }) else {
             throw DIDCommError.verificationMethodNotFoundForId(signFrom)
         }
         
@@ -53,7 +53,7 @@ struct RecipientKeySelector {
         
         let document = try await didResolver.resolve(did: didFrom.did)
         
-        guard let method = document.verificationMethods.first(where: { $0.id == from }) else {
+        guard let method = document.verificationMethods?.first(where: { $0.id == from }) else {
             throw DIDCommError.verificationMethodNotFoundForId(from)
         }
         
