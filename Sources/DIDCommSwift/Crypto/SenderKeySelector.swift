@@ -107,7 +107,7 @@ struct SenderKeySelector {
         }
         let document = try await didResolver.resolve(did: didTo.did)
         if didTo.fragment != nil {
-            guard let verificationMethod = document.verificationMethods?.first(where: { $0.id == to }) else {
+            guard let verificationMethod = document.verificationMethod?.first(where: { $0.id == to }) else {
                 return []
             }
             return [try KeyHelper.fromVerificationMethod(method: verificationMethod)]
@@ -127,7 +127,7 @@ struct SenderKeySelector {
         }
         if didTo.fragment != nil {
             guard
-                let verificationMethod = document.verificationMethods?.first(where: { $0.id == to }),
+                let verificationMethod = document.verificationMethod?.first(where: { $0.id == to }),
                 let methodCurve = try? verificationMethod.getCurve(),
                 curve == methodCurve
             else {
@@ -150,7 +150,7 @@ extension DIDDocument {
         authentication?.map {
             switch $0 {
             case .stringValue(let value):
-                return verificationMethods?.first { $0.id == value }
+                return verificationMethod?.first { $0.id == value }
             case .verificationMethod(let method):
                 return method
             }
@@ -161,7 +161,7 @@ extension DIDDocument {
         keyAgreement?.map {
             switch $0 {
             case .stringValue(let value):
-                return verificationMethods?.first { $0.id == value }
+                return verificationMethod?.first { $0.id == value }
             case .verificationMethod(let method):
                 return method
             }
