@@ -446,7 +446,7 @@ let bobMediatorMultipleMediators = AnyCodable(dictionaryLiteral:
 
 let didDocBobTestVectors = DIDDocument(
     id: "did:example:bob",
-    verificationMethods: [
+    verificationMethod: [
         bobVerificationMethodKeyAgreeX25519_1,
         bobVerificationMethodKeyAgreeX25519_2,
         bobVerificationMethodKeyAgreeX25519_3,
@@ -484,7 +484,7 @@ let bobService = AnyCodable(dictionaryLiteral:
 
 let didDocBobWithNoSecrets = DIDDocument(
     id: "did:example:bob",
-    verificationMethods: [
+    verificationMethod: [
         bobVerificationMethodKeyAgreeX25519_1,
         bobVerificationMethodKeyAgreeX25519_2,
         bobVerificationMethodKeyAgreeX25519_3,
@@ -519,7 +519,7 @@ let didDocBobWithNoSecrets = DIDDocument(
 
 let didDocBobSpecRoutingTestVectors = DIDDocument(
     id: "did:example:bob",
-    verificationMethods: [
+    verificationMethod: [
         bobVerificationMethodKeyAgreeX25519_1,
         bobVerificationMethodKeyAgreeX25519_2,
         bobVerificationMethodKeyAgreeX25519_3,
@@ -535,7 +535,7 @@ let didDocBobSpecRoutingTestVectors = DIDDocument(
 
 let didDocBobSpecRoutingMediator1TestVectors = DIDDocument(
     id: "did:example:bobMediator1",
-    verificationMethods: [
+    verificationMethod: [
         bobMediator1VerificationMethodKeyAgreeX25519_1,
     ],
     authentication: [],
@@ -547,7 +547,7 @@ let didDocBobSpecRoutingMediator1TestVectors = DIDDocument(
 
 let didDocBobSpecRoutingMediator2TestVectors = DIDDocument(
     id: "did:example:bobMediator2",
-    verificationMethods: [
+    verificationMethod: [
         bobMediator2VerificationMethodKeyAgreeX25519_1,
     ],
     authentication: [],
@@ -559,7 +559,7 @@ let didDocBobSpecRoutingMediator2TestVectors = DIDDocument(
 
 let didDocBobSpecRoutingMediator3TestVectors = DIDDocument(
     id: "did:example:bobMediator3",
-    verificationMethods: [
+    verificationMethod: [
         bobMediator3VerificationMethodKeyAgreeX25519_1,
         bobMediator3VerificationMethodKeyAgreeP256_1,
     ],

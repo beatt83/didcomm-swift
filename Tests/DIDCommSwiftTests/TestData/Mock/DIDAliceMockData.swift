@@ -177,7 +177,7 @@ let aliceServiceRoutingKeys = AnyCodable(aliceServiceRoutingKeysDic)
 
 let didDocAliceSpecTestVectors = DIDDocument(
     id: "did:example:alice",
-    verificationMethods: [
+    verificationMethod: [
         aliceVerificationMethodKeyAgreeX25519,
         aliceVerificationMethodKeyAgreeP256,
         aliceVerificationMethodKeyAgreeP521,
@@ -200,7 +200,7 @@ let didDocAliceSpecTestVectors = DIDDocument(
 
 let didDocAliceSpecWithNoSecrets = DIDDocument(
     id: "did:example:alice",
-    verificationMethods: [
+    verificationMethod: [
         aliceVerificationMethodKeyAgreemX25519NotInSecret,
         aliceVerificationMethodKeyAgreeX25519,
         aliceVerificationMethodKeyAgreeP256,
@@ -223,7 +223,7 @@ let didDocAliceSpecWithNoSecrets = DIDDocument(
 
 let didDocAliceSpecRoutingTestVectors = DIDDocument(
     id: "did:example:alice",
-    verificationMethods: [
+    verificationMethod: [
         aliceVerificationMethodKeyAgreeX25519,
         aliceVerificationMethodKeyAgreeP256,
         aliceVerificationMethodKeyAgreeP521,

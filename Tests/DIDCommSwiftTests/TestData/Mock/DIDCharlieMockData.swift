@@ -98,7 +98,7 @@ let charlieServices1 = AnyCodable(dictionaryLiteral:
 
 let didDocCharlie = DIDDocument(
     id: "did:example:charlie",
-    verificationMethods: [
+    verificationMethod: [
         charlieVerificationMethodKeyAgreeX255191,
 //        charlieVerificationMethodKeyAgreeX255192,
 //        charlieVerificationMethodKeyAgreeX255193,
