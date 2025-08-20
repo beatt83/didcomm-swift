@@ -32,7 +32,7 @@ public struct DIDComm {
     public init(didResolver: DIDResolver, secretResolver: SecretResolver) {
         self.didResolver = didResolver
         self.secretResolver = secretResolver
-        JWE.encryptionModule = .defaultWithMasterEphemeralKey
+        JWE.encryptionModuleContainer.setEncryptionModule(.defaultWithMasterEphemeralKey)
     }
     
     /// Produces [DIDComm Plaintext Messages](https://identity.foundation/didcomm-messaging/spec/#didcomm-plaintext-messages).
