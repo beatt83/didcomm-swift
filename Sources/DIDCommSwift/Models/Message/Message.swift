@@ -86,7 +86,7 @@ public struct Message: Equatable {
     /// A custom type identifier for the message, used for protocol-specific purposes.
     public let type: String
     /// The MIME type of the message, indicating how it is formatted and encrypted.
-    public let typ: Typ
+    public let typ: Typ?
     /// The DID of the sender.
     public let from: String?
     /// An array of DIDs for the intended recipients of the message.
@@ -135,7 +135,7 @@ public struct Message: Equatable {
         id: String,
         body: Data? = nil,
         type: String,
-        typ: Typ,
+        typ: Typ? = nil,
         from: String? = nil,
         to: [String]? = nil,
         createdTime: Date? = nil,
@@ -333,10 +333,10 @@ extension Message {
     public func didcommJson() throws -> Data {
         var jsonDic: [String: Any] = [
             "id": id,
-            "type": type,
-            "typ": typ.rawValue
+            "type": type
         ]
         
+        typ.map { jsonDic["typ"] = $0.rawValue }
         from.map { jsonDic["from"] = $0 }
         to.map { jsonDic["to"] = $0 }
         createdTime.map { jsonDic["created_time"] = $0.formattedForDidcommPack() }
