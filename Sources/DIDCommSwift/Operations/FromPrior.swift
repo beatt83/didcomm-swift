@@ -41,7 +41,7 @@ struct FromPrior {
             let issKid = try extractFromPriorKid(fromPriorJwt: fromPriorJwt)
         else { return (message, nil) }
         let key = try await keySelector.findVerificationKey(signFrom: issKid)
-        let jwt = try JWT.verify(jwtString: fromPriorJwt, senderKey: key.jwk)
+        let _ = try await JWT.verify(jwtString: fromPriorJwt, senderKey: key.jwk)
         let payload: DefaultJWTClaimsImpl = try JWT.getPayload(jwtString: fromPriorJwt)
         let newFromPrior = Message.FromPrior(
             iss: payload.iss,
