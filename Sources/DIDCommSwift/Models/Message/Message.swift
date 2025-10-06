@@ -273,16 +273,14 @@ extension Message {
     init(fromJson: [String: Any]) throws {
         guard
             let id = fromJson["id"] as? String,
-            let type = fromJson["type"] as? String,
-            let typStr = fromJson["typ"] as? String,
-            let typ = Typ(rawValue: typStr)
+            let type = fromJson["type"] as? String
         else {
             throw DIDCommError.somethingWentWrong
         }
         
         self.id = id
         self.type = type
-        self.typ = typ
+        self.typ = (fromJson["typ"] as? String).flatMap { Typ(rawValue: $0) }
         self.from = fromJson["from"] as? String
         self.to = fromJson["to"] as? [String]
         let createdTime = (fromJson["created_time"] as? String)
